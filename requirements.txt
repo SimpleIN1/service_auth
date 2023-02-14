@@ -1,0 +1,15 @@
+django
+psycopg2
+wheel
+djangorestframework
+django[argon2]
+django[bcrypt]
+python dotenv
+djangorestframework_simplejwt
+Celery
+redis
+Celery[redis]
+django_redis
+
+django-cors-headers
+gunicorn
