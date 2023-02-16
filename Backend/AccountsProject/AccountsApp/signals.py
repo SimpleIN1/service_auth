@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
@@ -30,10 +31,11 @@ def user_post_save(created, **kwargs):
         # )
         email = instance.email
         token = Jwt.create_tmp_access_token(email)
+
         EmailVerify(email=email, context={
-            'protocol': 'https',
-            'site_name': 'fire-activity-map.com',
-            'url': f'url?email={email}&'
+            'protocol': settings.PROTOCOL,
+            'site_name': settings.HOST,
+            'url': f'{settings.URL_PAGE["email_verify"]}?email={email}&'
                    f'token={token}&'
                    f'uuid={instance.uuid}',
         }).send()

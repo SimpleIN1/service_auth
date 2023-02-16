@@ -20,10 +20,11 @@ class UserUpdateDestroyRetrieve:
 
         if old_email != new_email:
             token = Jwt.create_tmp_access_token(new_email)
+
             EmailVerify(email=new_email, context={
-                'protocol': 'https',
-                'site_name': 'fire-activity-map.com',
-                'url': f'url?email={new_email}&'
+                'protocol': settings.PROTOCOL,
+                'site_name': settings.HOST,
+                'url': f'{settings.URL_PAGE["email_verify"]}?email={new_email}&'
                        f'token={token}&'
                        f'uuid={uuid}',
             }).send()
@@ -143,9 +144,9 @@ def perform_additional_to_recovery_password(**kwargs) -> Tuple[str, str, int]:
     token = Jwt.create_tmp_access_token(email)
 
     EmailResetPassword(kwargs.get('email'), context={
-        'protocol': 'https',
-        'site_name': 'fire-activity-map.com',
-        'url': f'url?email={email}&'
+        'protocol': settings.PROTOCOL,
+        'site_name': settings.HOST,
+        'url': f'{settings.URL_PAGE["reset_password"]}?email={email}&'
                f'token={token}&'
                f'uuid={user.uuid}',
     }).send()
@@ -183,9 +184,9 @@ def perform_additional_to_recovery_account(**kwargs) -> Tuple[str, str, int]:
     token = Jwt.create_tmp_access_token(email)
 
     RecoveryAccount(kwargs.get('email'), context={
-        'protocol': 'https',
-        'site_name': 'fire-activity-map.com',
-        'url': f'url?email={email}&'
+        'protocol': settings.PROTOCOL,
+        'site_name': settings.HOST,
+        'url': f'{settings.URL_PAGE["recovery_account"]}?email={email}&'
                f'token={token}&'
                f'uuid={user.uuid}',
     }).send()

@@ -297,3 +297,11 @@ ERRORS = {
         '18': 'Пользователь с этим адресом электронной почты уже существует.',
     },
 }
+
+PROTOCOL = 'http'
+HOST = 'fire-activity-map1.com'
+URL_PAGE = {
+    'email_verify': 'url1',
+    'reset_password': 'url1',
+    'recovery_account': 'url1',
+}
