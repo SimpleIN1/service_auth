@@ -1,15 +1,14 @@
-django
-psycopg2
-wheel
-djangorestframework
+django==4.1.6
+psycopg2==2.9.5
+wheel==0.38.4
+djangorestframework==3.14.0
 django[argon2]
 django[bcrypt]
-python dotenv
-djangorestframework_simplejwt
-Celery
-redis
+python-dotenv==0.21.0
+Celery==5.2.7
+redis==4.4.2
 Celery[redis]
-django_redis
+django_redis==5.2.0
 
-django-cors-headers
-gunicorn
+django-cors-headers==3.13.0
+gunicorn==20.1.0
