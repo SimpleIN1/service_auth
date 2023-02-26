@@ -25,8 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 ACCESS_SECRET_KEY = os.getenv('ACCESS_SECRET_KEY')
 REFRESH_SECRET_KEY = os.getenv('REFRESH_SECRET_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG')
+DEBUG = True #os.getenv('DEBUG')
 
 ALLOWED_HOSTS = []
 
@@ -134,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         # 'AccountsApp.scripts.authentication.RemoteUserAuthentication',
-        'AccountsApp.scripts.authentication.JWTAuthentication',
+        'AccountsApp.scripts.auth.authentication.JWTAuthentication',
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         # 'rest_framework.authentication.TokenAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
@@ -156,6 +157,7 @@ REST_FRAMEWORK = {
 
 # LANGUAGE_CODE = 'en-us'
 LANGUAGE_CODE = 'ru-ru'
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -190,21 +192,22 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
 )
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1:8081',
 ]
 
 
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/1", #os.getenv('CELERY_BROKER_URl'),#
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        }
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django_redis.cache.RedisCache",
+#         "LOCATION": "redis://127.0.0.1:6379/1", #os.getenv('CELERY_BROKER_URl'),#
+#         "OPTIONS": {
+#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
+#         }
+#     }
+# }
 
 
 LOGGING = {
@@ -223,52 +226,20 @@ LOGGING = {
     },
 }
 
-ERRORS1 = {
-    # user error
-    'user_error': {
-        '1': 'User not found.',
-        '2': 'You have already passed verification.',
-        '3': 'User is not verified.',
-        '4': 'The user does not exist or has been deleted', #'User is inactive.',
-        '5': 'Password have recovered already.',
-        '6': 'Wrong password.',
-    },
-
-    # user info
-    'user_info': {
-        '7': 'Recovery password is successful.',
-        '8': 'You are verifying.',
-        '9': 'Email is sent.',
-    },
-    # token error
-    'token_error': {
-        '10': 'Token is invalid.',
-        '11': 'Token is expired.',
-        '12': 'Token is invalid with decode error.',
-    },
-    # fields error
-    'fields_error': {
-        '13': 'The refresh token field is required.',
-
-        '14': 'Password mismatch.',
-        '15': 'This field is required.',
-        '16': 'User with this email address already exists.',
-    }
-}
 ERRORS = {
     # user_error
     'user_error': {
-        '1': 'Пользователь не найден.',
-        '2': 'Пароль не правильный.',
-        '3': 'Почта не подтверждена',
+        '1': 'Некорректный электронный адрес или пароль.',#'Пользователь не найден.',
+        '2': 'Старый пароль некорректный.',
+        '3': 'Почта не подтверждена. Вам отправлено письмо с подтверждением на почту',
         '4': 'Пользователь не найден или удален.',
     },
 
     # user info
     'user_info': {
-        '5': 'Пароль уже восстановлен.',
+        '5': 'Пароль уже измен.',
         '6': 'Почта уже подтверждена.',
-        '7': 'Восстановление пароля прошло успешно.',
+        '7': 'Пароль успешно изменен', #'Восстановление пароля прошло успешно.',
         '8': 'Почта подтверждена.',
         '9': 'Для подтверждения почты вам отправлено письмо на электронный адрес, который был указан при регистрации.',
         '10': 'Для сброса пароля вам отправлено письмо на электронный адрес, который был указан.',
@@ -279,23 +250,23 @@ ERRORS = {
 
     # token error
     'token_error': {
-        '11': 'Токен не правильный.',
-        '12': 'Действие токена закончилось.',
-        '13': 'Токен не валидный с ошибкой раскодировки.',
+        '14': 'Токен не правильный.',
+        '15': 'Действие токена закончилось.',
+        '16': 'Токен не валидный с ошибкой раскодировки.',
     },
 
-    'available_tmp_error' : {
-        '14': 'Ошибка доступа',
+    'available_tmp_error': {
+        '17': 'Невозможно выполнить операцию',
     },
 
     # fields error
     'fields_error': {
-        '15': 'Поле токена обновления является обязательным',
-
-        '16': 'Пароли не совпадают.',
-        '17': 'Это поле обязательно.',
-        '18': 'Пользователь с этим адресом электронной почты уже существует.',
+        '18': 'Обязательные поля не преданы или не прошли валидацию',
+        '19': 'Пользователь с этим адресом электронной почты уже существует.',
     },
+    'auth_error': {
+        '20': 'Учетные данные не были предоставлены.'
+    }
 }
 
 PROTOCOL = 'http'
@@ -305,3 +276,5 @@ URL_PAGE = {
     'reset_password': 'url1',
     'recovery_account': 'url1',
 }
+
+PASSWORD_RESET_TIMEOUT = 60 * 60 * 24 * 10

@@ -1,6 +1,6 @@
 from django.template.loader import render_to_string
 
-from ..tasks import send_email
+from AccountsApp.tasks import send_email
 
 
 class EmailSend:

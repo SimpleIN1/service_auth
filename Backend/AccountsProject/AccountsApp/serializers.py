@@ -1,17 +1,19 @@
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password, password_changed
+from django.contrib.auth.password_validation import validate_password
 from django.db.models import Q
 from django.conf import settings
 
 from rest_framework import serializers, exceptions, status
 from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueValidator
+
 
 User = get_user_model()
 
 
-class BaseOverrideSerializer(serializers.Serializer):
+class BaseOverrideSerializer(
+    serializers.Serializer
+):
     def is_valid(self, *, raise_exception=False):
         # This implementation is the same as the default,
         # except that we use lists, rather than dicts, as the empty case.
@@ -30,7 +32,15 @@ class BaseOverrideSerializer(serializers.Serializer):
                 self._errors = []
 
         if self._errors and raise_exception:
-            raise ValidationError({'fields': self.errors})
+            # print(self.errors)
+            # print(self._errors)
+
+            # print(self.errors.get('email') == '19')
+            # print(self.errors.get('email')[0])
+            if self.errors.get('email') and self.errors.get('email')[0] == '19':
+                raise ValidationError({'fields_error': '19'}) #self.errors})
+            else:
+                raise ValidationError({'fields_error': '18'}) # self.errors})
 
         return not bool(self._errors)
 
@@ -41,35 +51,16 @@ class EmailSerializer(BaseOverrideSerializer):
 
 class PasswordSerializer(BaseOverrideSerializer):
     password = serializers.CharField(max_length=128, write_only=True)
-    re_password = serializers.CharField(max_length=128, write_only=True)
-
-    def validate(self, attrs):
-        data = super(PasswordSerializer, self).validate(attrs)
-        # print(attrs)
-        # print(data)
-        password = data.get('password', None)
-        re_password = data.get('re_password', None)
-
-        if password is not None and re_password is not None:
-            if data['password'] != data['re_password']:
-                raise serializers.ValidationError({'re_password': settings.ERRORS['fields_error']['16']})
-
-            del data['re_password']
-        # elif password is None:
-        #     pass
-        # elif re_password is None:
-        #     raise serializers.ValidationError({'re_password': settings.ERROR['fields_error']['15']})
-
-        return data
 
     def validate_password(self, password):
         validate_password(password, user=User)
         return super(PasswordSerializer, self).validate(password)
 
 
-
-
-class UserSerializer(EmailSerializer, PasswordSerializer):
+class UserSerializer(
+    EmailSerializer,
+    PasswordSerializer
+):
     last_name = serializers.CharField(
         max_length=150,
     )
@@ -86,9 +77,9 @@ class UserSerializer(EmailSerializer, PasswordSerializer):
 
     def create(self, validated_data):
         password = validated_data.pop('password')
-        user = User.objects.create(**validated_data)
+        user = User(is_active=False, **validated_data)
         user.set_password(password)
-        user.is_active = False
+        # user.is_active = False
         user.save()
         return user
 
@@ -114,19 +105,30 @@ class UserSerializer(EmailSerializer, PasswordSerializer):
             request = self.context['request']
             if request.method == 'POST':
                 if User.objects.filter(Q(email=email)).exists():
-                    raise serializers.ValidationError(settings.ERRORS['fields_error']['18'])
+                    # self.errors['']
+                    raise serializers.ValidationError('19')#settings.ERRORS['fields_error']['19'])
         elif self.instance is not None:
             instance = self.instance
             if User.objects.filter(Q(email=email) & ~Q(id=instance.id)).exists():
-                raise serializers.ValidationError(settings.ERRORS['fields_error']['18'])
+                raise serializers.ValidationError('19')#settings.ERRORS['fields_error']['19'])
         return email
 
 
-class JwtLoginSerializer(EmailSerializer):
+class JwtLoginSerializer(
+    EmailSerializer
+):
     password = serializers.CharField(max_length=128)
 
 
-class UUIDSerializer(BaseOverrideSerializer):
+class ResendLetterSerializer(
+    JwtLoginSerializer
+):
+    pass
+
+
+class UUIDSerializer(
+    BaseOverrideSerializer
+):
     uuid = serializers.UUIDField()
 
 
@@ -143,3 +145,21 @@ class ConfirmVerifyEMailSerializer(
     EmailSerializer
 ):
     pass
+
+
+class RecoveyAccount(
+    ConfirmVerifyEMailSerializer
+):
+    pass
+
+
+class TokenSerializer(
+    ConfirmVerifyEMailSerializer
+):
+    token = serializers.CharField(max_length=200)
+
+
+class ChangePasswordSerializer(
+    PasswordSerializer
+):
+    old_password = serializers.CharField(max_length=128, write_only=True)

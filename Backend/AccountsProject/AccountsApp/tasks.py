@@ -1,7 +1,7 @@
 import logging
 
 from celery_app.celery_app import app
-from AccountsApp.scripts.mail import Email
+from AccountsApp.scripts.mail.mail import Email
 
 
 @app.task()

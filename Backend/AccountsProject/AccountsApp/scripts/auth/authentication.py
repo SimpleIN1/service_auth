@@ -1,12 +1,10 @@
-from django.contrib.auth import get_user_model, authenticate
-from django.db.models import Q
+from django.contrib.auth import get_user_model
 from django.middleware.csrf import CsrfViewMiddleware
-from rest_framework import exceptions, status
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.response import Response
 
-from .jwt_token import Jwt
-from .user_view import find_or_get_user_model, is_not_active_user
+from AccountsApp.scripts.token.jwt_token import Jwt
+from AccountsApp.scripts.user_view import find_or_get_user_model, is_not_active_user
 
 
 class CSRF(CsrfViewMiddleware):
@@ -20,7 +18,7 @@ class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         token = request.headers.get('Authorization', None)
 
-        if token is None:
+        if not token:
             return None
 
         try:
@@ -49,6 +47,10 @@ class JWTAuthentication(BaseAuthentication):
         #     )
 
         is_not_active_user(user)
+
+        # if not user.is_active:
+        #     return None
+
         # print(type(user))
         # print(user)
 

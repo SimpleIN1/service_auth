@@ -19,7 +19,7 @@ class UserSerializerTestCase(TestCase):
         user1.save()
 
         data = UserSerializer(user1).data
-        print(data)
+
         excepted_data = {
             'email': 'user1@user.com',
             'first_name': 'user1_first_name',

@@ -5,8 +5,8 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase,APIClient
 
-from ..models import User
-from ..serializers import UserSerializer
+from AccountsApp.models import User
+from AccountsApp.serializers import UserSerializer
 
 
 class UserAPITestCase(APITestCase):
@@ -48,12 +48,18 @@ class UserAPITestCase(APITestCase):
             'organization_name': 'user1_organization_name'
         }
         request = self.client.post(url, data)
-
         self.assertEqual(status.HTTP_201_CREATED, request.status_code)
 
         # serializer_data = UserSerializer(data).data
         expected_data = {
-            'user_info': 'Для подтверждения почты вам отправлено письмо на электронный адрес, который был указан при регистрации.'
+            'user_data': {
+                'email': 'user@user.com',
+                'first_name': 'user1_first_name',
+                'last_name': 'user1_last_name',
+                'middle_name': 'user1_middle_name',
+                'organization_name': 'user1_organization_name'
+            },
+            'user_info': '9'
         }
         self.assertEqual(expected_data, request.data)
 
@@ -75,37 +81,7 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, request.status_code)
 
         expected_data = {
-            'fields': {
-                "email": [
-                    "Пользователь с этим адресом электронной почты уже существует."
-                ]
-            }
-        }
-        self.assertEqual(expected_data, request.data)
-
-    def test_create_user_validation_mismatch_password(self):
-        '''# test the error of validation into mismatch password #'''
-
-        url = reverse('user-list')
-        data = {
-            'email': 'user@user.com',
-            'password': '1234-_Rd1',
-            're_password': '1234-_Rd',
-            'last_name': 'user1_last_name',
-            'first_name': 'user1_first_name',
-            'middle_name': 'user1_middle_name',
-            'organization_name': 'user1_organization_name'
-        }
-        request = self.client.post(url, data)
-
-        self.assertEqual(status.HTTP_400_BAD_REQUEST, request.status_code)
-
-        expected_data = {
-            'fields': {
-                "re_password": [
-                    "Пароли не совпадают."
-                ]
-            }
+            'fields_error': '19'
         }
         self.assertEqual(expected_data, request.data)
 
@@ -116,7 +92,6 @@ class UserAPITestCase(APITestCase):
         data = {
             'email': 'user1@user.com',
             'password': '1234',
-            're_password': '1234-_Rd',
             'last_name': 'user1_last_name',
             'first_name': 'user1_first_name',
             'middle_name': 'user1_middle_name',
@@ -127,45 +102,7 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, request.status_code)
 
         expected_data = {
-            'fields': {
-                "email": [
-                    "Пользователь с этим адресом электронной почты уже существует."
-                ],
-                "password": [
-                    "Введённый пароль слишком короткий. Он должен содержать как минимум 8 символов.",
-                    "Введённый пароль слишком широко распространён.",
-                    "Введённый пароль состоит только из цифр."
-                ]
-            }
-        }
-        self.assertEqual(expected_data, request.data)
-
-    def test_create_user_validation_password(self):
-        '''# test the error into mismatch password #'''
-
-        url = reverse('user-list')
-
-        data = {
-            'email': 'user@user.com',
-            'password': '1234',
-            're_password': '1234-_Rd',
-            'last_name': 'user1_last_name',
-            'first_name': 'user1_first_name',
-            'middle_name': 'user1_middle_name',
-            'organization_name': 'user1_organization_name'
-        }
-        request = self.client.post(url, data)
-
-        self.assertEqual(status.HTTP_400_BAD_REQUEST, request.status_code)
-
-        expected_data = {
-            'fields': {
-                "password": [
-                    "Введённый пароль слишком короткий. Он должен содержать как минимум 8 символов.",
-                    "Введённый пароль слишком широко распространён.",
-                    "Введённый пароль состоит только из цифр."
-                ]
-            }
+            'fields_error': '19'
         }
         self.assertEqual(expected_data, request.data)
 
@@ -183,10 +120,19 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         return response.data
 
-    # def test_refresh_token(self):
-    #     url = reverse('jwt-refresh')
-    #     response = self.client.get(url)
-    #     self.assertEqual(status.HTTP_200_OK, response.status_code)
+    def test_refresh_token(self):
+        url_create_jwt = reverse('jwt-create')
+        data = {
+            'email': f'{self.user2.email}',
+            'password': '1234_Ddqw-'
+        }
+        response_create_jwt = self.client.post(url_create_jwt, data)
+        self.assertEqual(status.HTTP_200_OK, response_create_jwt.status_code)
+
+        url_refresh_token = reverse('jwt-refresh')
+        response_refresh_token = self.client.get(url_refresh_token)
+        # print(response_refresh_token.data)
+        self.assertEqual(status.HTTP_200_OK, response_refresh_token.status_code)
 
     def test_get_user_detail(self):
         '''# Test getting data of user 2 using an access token #'''
@@ -219,19 +165,18 @@ class UserAPITestCase(APITestCase):
 
         data = {
             'email': 'user2@user.com',
-            'password': '1234-_Rd',
-            're_password': '1234-_Rd',
-            'last_name': 'user',
-            'first_name': 'user1',
-            'middle_name': 'user_name',
-            'organization_name': 'oganization_name'
+            'password': '1323_dasdw',
+            'last_name': 'user1_last_name',
+            'first_name': 'user1_first_name',
+            'middle_name': 'user1_middle_name',
+            'organization_name': 'user1_organization_name'
         }
         response = client.put(url, data)
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
 
         expected_data = UserSerializer(data).data
-        received_data = UserSerializer(response.data).data
+        received_data = UserSerializer(response.data['user_data']).data
 
         self.assertEqual(expected_data, received_data)
 
@@ -256,17 +201,7 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
 
         expected_data = {
-            'fields': {
-                "password": [
-                    "Обязательное поле."
-                ],
-                "re_password": [
-                    "Обязательное поле."
-                ],
-                "organization_name": [
-                    "Обязательное поле."
-                ]
-            }
+            'fields_error': '18'
         }
 
         self.assertEqual(expected_data, response.data)
@@ -283,8 +218,7 @@ class UserAPITestCase(APITestCase):
 
         data = {
             'email': 'user1@user.com',
-            'password': '1234-_Rd',
-            're_password': '1234-_Rd',
+            'password': '1234',
             'last_name': 'user',
             'first_name': 'user1',
             'middle_name': 'user_name',
@@ -295,11 +229,7 @@ class UserAPITestCase(APITestCase):
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
 
         expected_data = {
-            'fields': {
-                "email": [
-                    "Пользователь с этим адресом электронной почты уже существует."
-                ]
-            }
+            'fields_error': '19'
         }
 
         self.assertEqual(expected_data, response.data)
