@@ -1,0 +1,137 @@
+version: "3"
+
+services:
+    nginx:
+        image: nginx
+        restart: always
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./config/nginx/conf.d/local.conf:/etc/nginx/conf.d/default.conf
+            - static_volume:/home/django-user/static
+        depends_on:
+            - gunicorn
+
+    redis:
+        image: redis
+        restart: always
+        command: redis-server
+        expose:
+            - "6379"
+
+    rabbit:
+        image: rabbitmq:3.11-management
+        restart: unless-stopped
+        ports: 
+            - "5672:5672"
+            - "15672:15672"
+
+    gunicorn:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        command: bash -c "venv/bin/gunicorn --workers 4 --bind 0.0.0.0:8000 AccountsProject.wsgi:application"
+        volumes:
+            - static_volume:/home/django-user/static
+            - ./Backend/AccountsProject/AccountsApp/migrations/:/home/django-user/AccountsApp/migrations/
+        expose:
+            - "8000"
+        depends_on:
+            - redis
+            - rabbit
+            - celery
+            - postgres
+            - migrations
+        env_file:
+            .env
+        environment:
+            SECRET_KEY: "${SECRET_KEY}"
+            ACCESS_SECRET_KEY: "${ACCESS_SECRET_KEY}"
+            REFRESH_SECRET_KEY: "${REFRESH_SECRET_KEY}"   
+        
+            DEBUG: "${DEBUG}"
+           
+            CELERY_BROKER_URl: "redis://redis:6379/0"
+            CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+
+            NAME_DB: "${NAME_DB}" 
+            USER_DB: "${USER_DB}" 
+            PASSWORD_DB: "${PASSWORD_DB}" 
+            HOST_DB: "postgres" 
+            PORT_DB: "${POST_DB}"
+
+    migrations:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        command: bash -c "venv/bin/python manage.py makemigrations AccountsApp && 
+                  venv/bin/python manage.py migrate && 
+                  venv/bin/python manage.py create_superuser"
+        volumes:
+            - ./Backend/AccountsProject/AccountsApp/migrations/:/home/django-user/AccountsApp/migrations/
+        depends_on:
+            - postgres
+        env_file:
+            .env
+        environment:
+            SECRET_KEY: "${SECRET_KEY}"
+
+            DEBUG: "${DEBUG}"
+
+            NAME_DB: "${NAME_DB}"
+            USER_DB: "${USER_DB}"
+            PASSWORD_DB: "${PASSWORD_DB}"
+            HOST_DB: "postgres"
+            PORT_DB: "${POST_DB}"
+
+            USERNAME_ADMIN: "${USERNAME_ADMIN}"
+            EMAIL_ADMIN: "${EMAIL_ADMIN}"
+            PASSWORD_ADMIN: "${PASSWORD_ADMIN}"
+
+    celery:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        command: bash -c "/home/django-user/venv/bin/celery -A celery_app worker --loglevel=debug --concurrency=4"
+
+        env_file:
+            - .env
+        environment:
+            DEBUG: "${DEBUG}"
+
+            EMAIL_HOST: "${EMAIL_HOST}"
+            EMAIL_PORT: "${EMAIL_PORT}"
+            EMAIL_USE_TLS: "${EMAIL_USE_TLS}"
+            EMAIL_USE_SSL: "${EMAIL_USE_TLS}"
+            EMAIL_HOST_USER: "${EMAIL_HOST_USER}"
+            EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
+            DEFAULT_FROM_EMAIL: "${DEFAULT_FROM_EMAIL}"
+
+            CELERY_BROKER_URl: "redis://redis:6379/0"
+            CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+        depends_on:
+            - redis
+            - rabbit    
+   
+    postgres:
+        image: postgres
+        restart: unless-stopped
+        volumes:
+            - postgres_db_volume:/var/lib/postgresql/data/
+        ports:
+            - "5432:5432"
+        env_file:
+            - .env
+        environment:
+            POSTGRES_PASSWORD: "${PASSWORD_DB}"
+            POSTGRES_DB: "${NAME_DB}" 
+            POSTGRES_USER: "${USER_DB}" 
+        
+volumes:
+    static_volume:
+    postgres_db_volume:
+
+    

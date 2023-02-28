@@ -1,0 +1,17 @@
+trashcode.txt
+.env
+README.md
+venv/
+
+__pycache__/
+*.py[cod]
+
+.idea
+
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
+
+run.sh
+entrypoint.sh
+notebook

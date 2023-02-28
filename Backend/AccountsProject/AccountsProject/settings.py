@@ -27,9 +27,9 @@ ACCESS_SECRET_KEY = os.getenv('ACCESS_SECRET_KEY')
 REFRESH_SECRET_KEY = os.getenv('REFRESH_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #os.getenv('DEBUG')
+DEBUG = (bool(int(os.environ.get('DEBUG', 1))))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'AccountsApp.User'
 
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
+    'cacheops',
 
     'AccountsApp.apps.AccountsAppConfig',
 ]
@@ -173,7 +174,10 @@ ACCOUNT_EMAIL_REQUIRED = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -198,33 +202,32 @@ CORS_ORIGIN_WHITELIST = [
 ]
 
 
-
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://127.0.0.1:6379/1", #os.getenv('CELERY_BROKER_URl'),#
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
-
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
+CACHEOPS = {
+    'AccountsApp.*': {
+        'ops': 'all',
+        'timeout': 60*15,
     },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['console'],
-        }
-    },
+    '*.*': {
+        'timeout': 60*15,
+    }
 }
+
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django.db.backends': {
+#             'level': 'DEBUG',
+#             'handlers': ['console'],
+#         }
+#     },
+# }
 
 ERRORS = {
     # user_error
