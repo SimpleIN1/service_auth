@@ -38,6 +38,9 @@ services:
             - ./Backend/AccountsProject/AccountsApp/migrations/:/home/django-user/AccountsApp/migrations/
         expose:
             - "8000"
+        links:
+            - redis
+            - rabbit
         depends_on:
             - redis
             - rabbit
@@ -53,7 +56,7 @@ services:
         
             DEBUG: "${DEBUG}"
            
-            CELERY_BROKER_URl: "redis://redis:6379/0"
+            CELERY_BROKER_URL: "redis://redis:6379/0"
             CELERY_RESULT_BACKEND: "redis://redis:6379/0"
 
             NAME_DB: "${NAME_DB}" 
@@ -71,8 +74,13 @@ services:
                   venv/bin/python manage.py create_superuser"
         volumes:
             - ./Backend/AccountsProject/AccountsApp/migrations/:/home/django-user/AccountsApp/migrations/
+        links:
+            - redis
+            - rabbit
         depends_on:
             - postgres
+            - redis
+            - rabbit    
         env_file:
             .env
         environment:
@@ -85,6 +93,9 @@ services:
             PASSWORD_DB: "${PASSWORD_DB}"
             HOST_DB: "postgres"
             PORT_DB: "${POST_DB}"
+
+            CELERY_BROKER_URL: "redis://redis:6379/0"
+            CELERY_RESULT_BACKEND: "redis://redis:6379/0"
 
             USERNAME_ADMIN: "${USERNAME_ADMIN}"
             EMAIL_ADMIN: "${EMAIL_ADMIN}"
@@ -112,6 +123,9 @@ services:
 
             CELERY_BROKER_URl: "redis://redis:6379/0"
             CELERY_RESULT_BACKEND: "redis://redis:6379/0"
+        links:
+            - redis
+            - rabbit
         depends_on:
             - redis
             - rabbit    

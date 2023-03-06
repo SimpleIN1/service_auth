@@ -150,7 +150,7 @@ class UserDetailDestroyUpdateViewSet(
     UserUpdateDestroyRetrieve
 ):
 
-    permission_classes = (IsAuthenticated, )
+    #permission_classes = (IsAuthenticated, )
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

@@ -29,7 +29,7 @@ REFRESH_SECRET_KEY = os.getenv('REFRESH_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (bool(int(os.environ.get('DEBUG', 1))))
 
-ALLOWED_HOSTS = ['45.146.167.129', '0.0.0.0', ]#'*']
+ALLOWED_HOSTS = ['45.146.167.129', '0.0.0.0', '127.0.0.1']#'*']
 
 AUTH_USER_MODEL = 'AccountsApp.User'
 
@@ -63,6 +63,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.RemoteUserMiddleware',
 
 ]
+
+CSRF_TRUSTED_ORIGINS = ['http://45.146.167.129:8080']
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
@@ -211,6 +213,7 @@ CACHEOPS = {
         'timeout': 60*15,
     }
 }
+CACHEOPS_REDIS = os.getenv('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/3')
 
 
 # LOGGING = {

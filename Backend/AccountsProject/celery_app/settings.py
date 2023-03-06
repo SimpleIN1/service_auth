@@ -6,7 +6,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')# его тут не должно быть, 
 
 REDIS_HOST = 'localhost'
 REDIS_PORT = '6379'
-BROKER_URl = os.getenv('CELERY_BROKER_URl:', f'redis://{REDIS_HOST}:{REDIS_PORT}/0')
+BROKER_URl = os.getenv('CELERY_BROKER_URL', f'redis://{REDIS_HOST}:{REDIS_PORT}/0')
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600}
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', f'redis://{REDIS_HOST}:{REDIS_PORT}/0')
 CELERY_IMPORTS = ('AccountsApp.tasks')
