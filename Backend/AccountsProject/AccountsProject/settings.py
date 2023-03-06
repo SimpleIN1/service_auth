@@ -64,6 +64,8 @@ MIDDLEWARE = [
 
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
+
 CSRF_TRUSTED_ORIGINS = ['http://45.146.167.129:8080']
 
 PASSWORD_HASHERS = [
@@ -149,6 +151,13 @@ REST_FRAMEWORK = {
         # 'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+if not DEBUG:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
+            "rest_framework.renderers.JSONRenderer",
+        )
+
+
 #
 # AUTHENTICATION_BACKENDS = [
 #     'AccountsApp.scripts.authentication.CustomModelBackend',
