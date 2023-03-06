@@ -14,7 +14,7 @@ class Jwt:
     def create_access_token(user_id):
         payload = {
             'token_type': 'access',
-            'exp': datetime.utcnow() + timedelta(days=0, minutes=35),
+            'exp': datetime.utcnow() + timedelta(days=0, minutes=5),
             'iat': datetime.utcnow(),
             'jti': f'{uuid4()}',
             'user_id': user_id,
@@ -32,7 +32,7 @@ class Jwt:
     def create_refresh_token(user_id):
         payload = {
             'token_type': 'refresh',
-            'exp': datetime.utcnow() + timedelta(days=10),
+            'exp': datetime.utcnow() + timedelta(days=2),
             'iat': datetime.utcnow(),
             'jti': f'{uuid4()}',
             'user_id': user_id,
