@@ -29,7 +29,7 @@ REFRESH_SECRET_KEY = os.getenv('REFRESH_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (bool(int(os.environ.get('DEBUG', 1))))
 
-ALLOWED_HOSTS = ['45.146.167.129', '0.0.0.0', '127.0.0.1']#'*']
+ALLOWED_HOSTS = ['45.146.167.129', '45.9.40.14', '0.0.0.0', '127.0.0.1']#'*']
 
 AUTH_USER_MODEL = 'AccountsApp.User'
 
