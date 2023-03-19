@@ -286,10 +286,10 @@ def get_access_token(**kwargs) -> dict:
 def perform_resend_email_letter(**kwargs) -> Tuple[str, str, int]:
     '''# Фунция, выпоняющая отправку письма #'''
 
-    password = kwargs.pop('password')
+    #password = kwargs.pop('password')
     user = find_or_get_user_model(**kwargs)
 
-    if not user.is_verify and user.check_password(password):
+    if not user.is_verify: #and user.check_password(password):
 
         token = create_token(user)
 

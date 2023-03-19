@@ -121,7 +121,7 @@ class JwtLoginSerializer(
 
 
 class ResendLetterSerializer(
-    JwtLoginSerializer
+    EmailSerializer#JwtLoginSerializer
 ):
     pass
 

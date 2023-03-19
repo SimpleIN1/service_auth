@@ -31,3 +31,94 @@
    - Перейти в корневую папку проекта.
    - docker-compose up.
 Наверное все
+
+
+
+----------------------------------------------------------------
+- api/auth/users/ \
+TYPE REQUESt - POST \
+{ \
+    'email': 'user@user.com',\
+    'password': '1234-_Rd',\
+    're_password': '1234-_Rd',\
+    'last_name': 'user1_last_name',\
+    'first_name': 'user1_first_name',\
+    'middle_name': 'user1_middle_name', (Необезательное поле)\
+    'organization_name': 'user1_organization_name'\
+}(на почту отправляется сслыка https://fire-activity-map.com/url на фронте/?email=myhosttt@mail.ru&token=eyJhbGciOiJIUzI1NiIsInR5cCI6&uuid=asdasd-adasdasd-asdasd-asdasd)
+
+- api/auth/users/confirm_recovery_user/ \
+TYPE REQUEST - POST \
+{\
+    'email':'user@mail.ru',\
+    'uuid':'dqdqw-dqwdq-qdwd-dqwd', \
+    'token': 'asdasdasasdasd' \
+}
+
+- api/auth/users/confirm_reset_password/\
+TYPE REQUEST - POST\
+{\
+'email':'user@mail.ru',\
+    'password': 'adsdasd',\
+    'uuid': 'dqdqw-dqwdq-qdwd-dqwd'\
+    'token': 'dasdasasdasd'\
+}\
+
+- api/auth/users/confirm_verify_email/\
+TYPE REQUEST - POST\
+{\
+    'email':'user@mail.ru',\
+    'uuid':'dqdqw-dqwdq-qdwd-dqwd'\
+    'token': 'asdasdasasdasd'\
+}
+
+- api/auth/users/recovery_user/\
+TYPE REQUEST - POST\
+{\
+    'email': 'user@mail.ru'\
+}(на почту отправляется сслыка https://fire-activity-map.com/url на фронте/?email=myhosttt@mail.ru&token=eyJhbGciOiJIUzI1NiIsInR5cCI6&uuid=asdasd-adasdasd-asdasd-asdasd)
+
+- api/auth/users/resend_email_letter/\
+TYPE REQUEST - POST\
+{\
+    'email': 'user@mail.ru'\
+}(на почту отправляется сслыка https://fire-activity-map.com/url на фронте/?email=myhosttt@mail.ru&token=eyJhbGciOiJIUzI1NiIsInR5cCI6&uuid=asdasd-adasdasd-asdasd-asdasd)
+(при регистрации работает)
+
+- api/auth/users/reset_password/\
+TYPE REQUEST - POST\
+{\
+    'email': 'user@mail.ru'\
+}(на почту отправляется сслыка https://fire-activity-map.com/url на фронте/?email=myhosttt@mail.ru&token=eyJhbGciOiJIUzI1NiIsInR5cCI6&uuid=asdasd-adasdasd-asdasd-asdasd)
+
+- api/auth/user/change_password/\
+REQUEST TYPE - POST\
+{\
+    'password': 'dasdasd',\
+    'old_password': 'asdasd'\
+}
+
+- api/auth/user/logout/ \
+REQUEST TYPE - get(удаляется refresh_token из кук c клиента не передается access_token)\
+
+- api/auth/user/me/\
+REQUEST TYPE - GET, POST, PATCH, DELETE\
+POST\
+{\
+}
+
+
+- api/auth/user/(?P<pk>[^/.]+)/
+REQUEST TYPE - GET
+
+- api/auth/jwt/create/ \
+REQUEST TYPE - POST 
+{ \
+    'email': 'user@mail.ru'\
+    'password': 'asdfdasd'\
+}\
+
+- api/auth/jwt/refresh/ \
+REQUEST TYPE - GET (считается что refresh_token хранится в куках)\
+
+
