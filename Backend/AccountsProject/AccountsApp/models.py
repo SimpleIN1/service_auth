@@ -1,8 +1,18 @@
+from datetime import datetime
+
 from django.contrib.auth import password_validation
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 import uuid
+
+
+def upload_to(inst, fn):
+    dirname = str(inst.email).split('@')[0]
+    expansion = settings.CONTENT_TYPE[inst.file._file.content_type]
+    filename = f'{inst.last_name}_{inst.first_name}_{inst.middle_name}.{expansion}'
+    return f'media/files/{dirname}/{filename}'
 
 
 class User(AbstractUser):
@@ -45,12 +55,34 @@ class User(AbstractUser):
         default=False,
         verbose_name='Подтвержденная почта.'
     )
+    TYPE_USER = (
+        (1, 'Директор'),
+        (2, 'Обычный рядовой пользователь'),
+    )
+    type_user = models.SmallIntegerField(
+        verbose_name='Тип пользователя',
+        choices=TYPE_USER,
+        default=2,
+    )
+    is_getter_email = models.BooleanField(
+        verbose_name='Является получателем писем для проверки документов',
+        default=False,
+    )
     uuid = models.UUIDField(default=uuid.uuid4(), db_index=True)
     is_reset_password = models.BooleanField(default=False)
+    file = models.FileField(
+        verbose_name='Файл(ы) для получения доступа',
+        upload_to=lambda inst, fn: upload_to(inst, fn),
+        default=''
+    )
 
-    # is_active = models.BooleanField(default=False)
+
+    def update_last_login(self):
+        self.last_login = datetime.now()
 
     class Meta:
         db_table = 'auth_user'
         verbose_name = 'Пользователя'
         verbose_name_plural = 'Пользователи'
+
+

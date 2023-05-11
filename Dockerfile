@@ -16,6 +16,8 @@ RUN /home/django-user/venv/bin/pip install -r /home/django-user/requirements.txt
 
 COPY --chown=django-user ./Backend/AccountsProject/ /home/django-user/
 
+RUN /home/django-user/venv/bin/python manage.py collectstatic --noinput
+
 #COPY --chown=django-user ./entrypoint.sh /home/django-user/
 #RUN chmod +x entrypoint.sh
 

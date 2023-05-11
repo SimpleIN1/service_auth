@@ -21,12 +21,12 @@
         <div style="font-size: 17px">
             <p>
                 {% blocktrans %}Вы получаете это электронное письмо, потому что вам необходимо завершить процесс активации на
-                <a href="{{ protocol }}://{{ site_name }}" style="text-decoration: none;">{{ site_name }}</a>.
+                <a href="{{ protocol }}://{{ site_name }}:{{ port }}" style="text-decoration: none;">{{ site_name }}</a>.
                 {% endblocktrans %}
             </p>
 
             <p>{% trans "Пожалуйста, перейдите на следующую страницу, чтобы активировать учетную запись:" %}</p>
-            <a href="{{ protocol }}://{{ site_name }}/{{ url }}"
+            <a href="{{ protocol }}://{{ site_name }}:{{ port }}/{{ url }}"
                style="padding: 13px;
                border-radius: 3px;
                background-color: #9393e3;
@@ -42,7 +42,7 @@
             <p>{% trans "Спасибо за использование нашего сайта!" %}</p>
 
             <p>{% blocktrans %}Команда
-            <a href="{{ protocol }}://{{ site_name }}" style="text-decoration: none;">{{ site_name }}</a>
+            <a href="{{ protocol }}://{{ site_name }}:{{ port }}" style="text-decoration: none;">{{ site_name }}</a>
             {% endblocktrans %}</p>
         </div>
     </div>

@@ -3,18 +3,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
+# from AccountsApp.models import FileModel
 
 User = get_user_model()
 
 
 @admin.register(User)
 class UserModelAdmin(UserAdmin):
-    # pass
-    # exclude = [
-    #     'uuid',
-    #     'is_reset_password',
-    #     'username',
-    # ]
+
     list_display = [
         'id',
         'email',
@@ -26,12 +22,16 @@ class UserModelAdmin(UserAdmin):
         'is_verify',
         'is_staff',
         'is_superuser',
+        'type_user',
+        'is_getter_email',
     ]
     list_filter = [
         'is_active',
         'is_verify',
         'is_staff',
         'is_superuser',
+        'is_getter_email',
+        'type_user',
     ]
     search_fields = [
         'id',
@@ -52,8 +52,11 @@ class UserModelAdmin(UserAdmin):
                     "first_name",
                     "middle_name",
                     "organization_name",
+                    "type_user",
+                    "is_getter_email",
                     "password1",
-                    "password2"
+                    "password2",
+                    'file'
                 ),
             },
         ),
@@ -69,6 +72,8 @@ class UserModelAdmin(UserAdmin):
                     "organization_name",
                     "email",
                     "is_verify",
+                    "type_user",
+                    "is_getter_email",
                 )
         }),
         (
@@ -80,6 +85,7 @@ class UserModelAdmin(UserAdmin):
                     "is_superuser",
                     "groups",
                     "user_permissions",
+                    'file',
                 ),
             },
         ),

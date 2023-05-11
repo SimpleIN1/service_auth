@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.conf import settings
 
 
+
 class LogicTestCase(TestCase):
     pass
     # def test_creating_token(self):
@@ -25,3 +26,4 @@ class LogicTestCase(TestCase):
     #     result = check_token(expected_token, id, email, uuid, secret_key)
     #
     #     self.assertEqual(True, result)
+

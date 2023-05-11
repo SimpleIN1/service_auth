@@ -15,18 +15,19 @@
       border-radius: 3px;
     ">
         <div style="border-bottom: 1px solid #d3d3d3;">
-            <h1 style="margin: 10px 10px 10px 0">Восстановление аккаунта</h1>
+            <h1 style="margin: 10px 10px 10px 0">Регистрация</h1>
         </div>
 
         <div style="font-size: 17px">
             <p>
-                {% blocktrans %}Вы получаете это электронное письмо, потому что вы хотите восстановить учетную запись на
+                {% blocktrans %}Вы получаете это электронное письмо, потому что вы подали заявку на получение доступа к
                 <a href="{{ protocol }}://{{ site_name }}:{{ port }}" style="text-decoration: none;">{{ site_name }}</a>.
                 {% endblocktrans %}
             </p>
 
-            <p>{% trans "Пожалуйста, перейдите на следующую страницу, чтобы восстановить учетную запись:" %}</p>
-            <a href="{{ protocol }}://{{ site_name }}:{{ port }}/{{ url }}"
+            <p>{% trans "Как только ваша заявка будет рассмотрена, вы получите доступ к сервису и электронное письмо по почте с паролем" %}</p>
+
+           <a href="{{ protocol }}://{{ site_name }}:{{ port }}/{{ url }}"
                style="padding: 13px;
                border-radius: 3px;
                background-color: #9393e3;
@@ -36,13 +37,13 @@
                font-size: large;
                color: #ffffff"
             >
-                Восстановить учетную запись
+                Вернуться на сайт
             </a>
 
             <p>{% trans "Спасибо за использование нашего сайта!" %}</p>
 
             <p>{% blocktrans %}Команда
-            <a href="{{ protocol }}://{{ site_name }}:{{ port }}" style="text-decoration: none;">{{ site_name }}</a>
+            <a href="{{ protocol }}://{{ site_name }}" style="text-decoration: none;">{{ site_name }}</a>
             {% endblocktrans %}</p>
         </div>
     </div>

@@ -29,7 +29,7 @@ REFRESH_SECRET_KEY = os.getenv('REFRESH_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = (bool(int(os.environ.get('DEBUG', 1))))
 
-ALLOWED_HOSTS = ['45.146.167.129', '45.9.40.14', '0.0.0.0', '127.0.0.1']#'*']
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = 'AccountsApp.User'
 
@@ -61,12 +61,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.auth.middleware.RemoteUserMiddleware',
-
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
-CSRF_TRUSTED_ORIGINS = ['http://45.146.167.129:8080']
+CSRF_TRUSTED_ORIGINS = ['http://62.113.111.207:8080']
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
@@ -139,13 +138,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'AccountsApp.scripts.authentication.RemoteUserAuthentication',
-        'AccountsApp.scripts.auth.authentication.JWTAuthentication',
+        # 'AccountsApp.services.authentication.RemoteUserAuthentication',
+        'AccountsApp.services.auth.authentication.JWTAuthentication',
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
         # 'rest_framework.authentication.TokenAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
         # 'rest_framework.authentication.BasicAuthentication',
-
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         # 'rest_framework.permissions.IsAuthenticated',
@@ -154,13 +152,13 @@ REST_FRAMEWORK = {
 
 if not DEBUG:
     REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
-            "rest_framework.renderers.JSONRenderer",
+            # "rest_framework.renderers.JSONRenderer",
+            "drf_orjson_renderer.renderers.ORJSONRenderer",
         )
-
 
 #
 # AUTHENTICATION_BACKENDS = [
-#     'AccountsApp.scripts.authentication.CustomModelBackend',
+#     'AccountsApp.services.authentication.CustomModelBackend',
 #     # 'django.contrib.auth.backends.RemoteUserBackend',
 # ]
 
@@ -187,14 +185,16 @@ ACCOUNT_EMAIL_REQUIRED = True
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+# CORS
 CORS_ALLOW_HEADERS = (
     'accept',
     'accept-encoding',
@@ -207,12 +207,13 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
 )
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ORIGIN_WHITELIST = [
-    'http://127.0.0.1:8081',
-]
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+# CORS_ORIGIN_WHITELIST = [
+#     'http://127.0.0.1:8081',
+# ]
 
-
+#Cashing
 CACHEOPS = {
     'AccountsApp.*': {
         'ops': 'all',
@@ -225,21 +226,22 @@ CACHEOPS = {
 CACHEOPS_REDIS = os.getenv('CELERY_BROKER_URL', 'redis://127.0.0.1:6379/3')
 
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django.db.backends': {
-#             'level': 'DEBUG',
-#             'handlers': ['console'],
-#         }
-#     },
-# }
+#Logging for sql
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        }
+    },
+}
 
 ERRORS = {
     # user_error
@@ -281,11 +283,15 @@ ERRORS = {
     },
     'auth_error': {
         '20': 'Учетные данные не были предоставлены.'
+    },
+    'file_info': {
+        '1': 'Данных нет.',
     }
 }
 
 PROTOCOL = 'http'
-HOST = 'fire-activity-map1.com'
+HOST = '127.0.0.1'#'fire-activity-map1.com'
+PORT = '8080'
 URL_PAGE = {
     'email_verify': 'url1',
     'reset_password': 'url1',
@@ -293,3 +299,10 @@ URL_PAGE = {
 }
 
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24 * 10
+
+CONTENT_TYPE = {
+    'application/vnd.oasis.opendocument.text': 'odt',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.files': 'docx',
+    'application/pdf': 'pdf',
+    'application/msword': 'doc',
+}

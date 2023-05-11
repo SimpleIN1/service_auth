@@ -140,10 +140,10 @@ services:
         env_file:
             - .env
         environment:
-            PGDATA: /var/lib/postgresql/data/ 
-            #POSTGRES_PASSWORD: "${PASSWORD_DB}"
-            #POSTGRES_DB: "${NAME_DB}" 
-            #POSTGRES_USER: "${USER_DB}" 
+            #PGDATA: /var/lib/postgresql/data/
+            POSTGRES_PASSWORD: "${PASSWORD_DB}"
+            POSTGRES_DB: "${NAME_DB}"
+            POSTGRES_USER: "${USER_DB}"
        
 volumes:
     static_volume:

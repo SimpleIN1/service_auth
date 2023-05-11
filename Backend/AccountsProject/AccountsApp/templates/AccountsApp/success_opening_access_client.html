@@ -15,17 +15,28 @@
       border-radius: 3px;
     ">
         <div style="border-bottom: 1px solid #d3d3d3;">
-            <h1 style="margin: 10px 10px 10px 0">Восстановление аккаунта</h1>
+            <h1 style="margin: 10px 10px 10px 0">Успешное получение доступа</h1>
         </div>
 
         <div style="font-size: 17px">
             <p>
-                {% blocktrans %}Вы получаете это электронное письмо, потому что вы хотите восстановить учетную запись на
+                {% blocktrans %}Вы получили доступ к
                 <a href="{{ protocol }}://{{ site_name }}:{{ port }}" style="text-decoration: none;">{{ site_name }}</a>.
                 {% endblocktrans %}
             </p>
 
-            <p>{% trans "Пожалуйста, перейдите на следующую страницу, чтобы восстановить учетную запись:" %}</p>
+            <div style="
+                padding: 10px;
+                background-color: #e8e8fd;
+                color: #222;
+                margin-bottom: 10px;
+                opacity: 0.9;
+            ">
+              <p><b>{% trans "Данные для входа" %}</b></p>
+              <p><b>{% trans "Почта:" %}</b> {{ email }}</p>
+              <p><b>{% trans "Пароль:" %}</b> {{ password }}</p>
+            </div>
+
             <a href="{{ protocol }}://{{ site_name }}:{{ port }}/{{ url }}"
                style="padding: 13px;
                border-radius: 3px;
@@ -36,7 +47,7 @@
                font-size: large;
                color: #ffffff"
             >
-                Восстановить учетную запись
+                Перейти на сайт
             </a>
 
             <p>{% trans "Спасибо за использование нашего сайта!" %}</p>

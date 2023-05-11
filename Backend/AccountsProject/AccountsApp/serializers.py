@@ -7,11 +7,12 @@ from django.conf import settings
 from rest_framework import serializers, exceptions, status
 from rest_framework.exceptions import ValidationError
 
+# from AccountsApp.models import FileModel
 
 User = get_user_model()
 
 
-class BaseOverrideSerializer(
+class BaseSerializer(
     serializers.Serializer
 ):
     def is_valid(self, *, raise_exception=False):
@@ -32,35 +33,32 @@ class BaseOverrideSerializer(
                 self._errors = []
 
         if self._errors and raise_exception:
-            # print(self.errors)
-            # print(self._errors)
-
-            # print(self.errors.get('email') == '19')
-            # print(self.errors.get('email')[0])
             if self.errors.get('email') and self.errors.get('email')[0] == '19':
                 raise ValidationError({'fields_error': '19'}) #self.errors})
             else:
                 raise ValidationError({'fields_error': '18'}) # self.errors})
 
         return not bool(self._errors)
+    # pass
 
 
-class EmailSerializer(BaseOverrideSerializer):
+class EmailSerializer(BaseSerializer):
     email = serializers.EmailField()
 
 
-class PasswordSerializer(BaseOverrideSerializer):
+class PasswordSerializer(BaseSerializer):
     password = serializers.CharField(max_length=128, write_only=True)
 
     def validate_password(self, password):
+        # print(self)
         validate_password(password, user=User)
         return super(PasswordSerializer, self).validate(password)
 
 
-class UserSerializer(
-    EmailSerializer,
-    PasswordSerializer
+class UserNotPasswordSerializer(
+    EmailSerializer
 ):
+
     last_name = serializers.CharField(
         max_length=150,
     )
@@ -74,31 +72,27 @@ class UserSerializer(
     organization_name = serializers.CharField(
         max_length=400,
     )
+    file = serializers.FileField(write_only=True)
+
+    def check_file_type(self):
+        file = self.context['request'].FILES.getlist('file')
+        file_length = len(file)
+
+        if file_length > 8 or file_length < 1:
+            raise serializers.ValidationError({'fields_error': '18'})
+
+        if not settings.CONTENT_TYPE.get(file[0].__dict__['content_type']):
+            raise serializers.ValidationError({'fields_error': '18'})
 
     def create(self, validated_data):
-        password = validated_data.pop('password')
+        # password = validated_data.pop('password')
+
+        # user = User.objects.create(is_active=False, **validated_data)
+        self.check_file_type()
         user = User(is_active=False, **validated_data)
-        user.set_password(password)
-        # user.is_active = False
+        # user.set_password(password)
         user.save()
         return user
-
-    def update(self, instance, validated_data):
-
-        # instance.email = validated_data.pop('email', instance.email)
-
-        instance.last_name = validated_data.pop('last_name', instance.last_name)
-        instance.first_name = validated_data.pop('first_name', instance.first_name)
-        instance.middle_name = validated_data.pop('middle_name', instance.middle_name)
-        instance.organization_name = validated_data.pop('organization_name', instance.organization_name)
-
-        password = validated_data.pop('password', None)
-        if password is not None:
-            instance.set_password(password)
-        instance.save()
-
-        # return super().update(instance, validated_data)
-        return instance
 
     def validate_email(self, email):
         if self.context.__contains__('request'):
@@ -114,6 +108,27 @@ class UserSerializer(
         return email
 
 
+class UserSerializer(
+    UserNotPasswordSerializer,
+    PasswordSerializer,
+):
+    def update(self, instance, validated_data):
+        # instance.email = validated_data.pop('email', instance.email)
+
+        instance.last_name = validated_data.pop('last_name', instance.last_name)
+        instance.first_name = validated_data.pop('first_name', instance.first_name)
+        instance.middle_name = validated_data.pop('middle_name', instance.middle_name)
+        instance.organization_name = validated_data.pop('organization_name', instance.organization_name)
+
+        password = validated_data.pop('password', None)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+
+        # return super().update(instance, validated_data)
+        return instance
+
+
 class JwtLoginSerializer(
     EmailSerializer
 ):
@@ -127,7 +142,7 @@ class ResendLetterSerializer(
 
 
 class UUIDSerializer(
-    BaseOverrideSerializer
+    BaseSerializer
 ):
     uuid = serializers.UUIDField()
 

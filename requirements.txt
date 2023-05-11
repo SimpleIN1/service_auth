@@ -14,3 +14,4 @@ PyJWT==2.6.0
 django-cors-headers==3.13.0
 gunicorn==20.1.0
 django-cacheops==6.1
+drf-orjson-renderer==1.7.1

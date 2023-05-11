@@ -1,29 +1,36 @@
-import functools
 
 from django.conf import settings
+from django.http import FileResponse
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
+from django.views.static import serve
 from rest_framework import status, exceptions
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import (CreateModelMixin,
                                    RetrieveModelMixin)
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
 
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from .scripts.decorators import permission_is_auth_tmp_token
-from .scripts.user_view import UserUpdateDestroyRetrieve, perform_confirm_verify_user, \
+from AccountsApp.decorators import permission_is_auth_tmp_token
+# from .models import FileModel
+from .permissions import IsAdmin, IsDirector
+from .services.mail.mail import Mail
+from .services.user_view import UserUpdateDestroyRetrieve, perform_confirm_verify_user, \
     perform_additional_to_reset_password, perform_reset_password, get_couple_tokens, get_access_token, \
-    is_token_transferred, perform_additional_to_recovery_user, perform_recovery_user, find_or_get_user_model, \
-    perform_resend_email_letter, perform_change_password
-from .serializers import UserSerializer, EmailSerializer, JwtLoginSerializer, ResetPasswordSerializer, \
-    ConfirmVerifyEMailSerializer, RecoveyAccount, ResendLetterSerializer, ChangePasswordSerializer
-from AccountsApp.scripts.token.jwt_token import Jwt
+    is_token_transferred, perform_additional_to_recovery_user, perform_recovery_user, perform_resend_email_letter, \
+    perform_change_password, find_or_get_user_model, logout
+from AccountsApp.serializers import UserSerializer, EmailSerializer, JwtLoginSerializer, ResetPasswordSerializer, \
+    ConfirmVerifyEMailSerializer, RecoveyAccount, ResendLetterSerializer, ChangePasswordSerializer, \
+    UserNotPasswordSerializer
+from AccountsApp.services.token.jwt_token import Jwt
+from AccountsApp.tasks import send_email
+
 
 User = get_user_model()
 
@@ -34,13 +41,15 @@ class UserCreateViewSet(
 ):
     permission_classes = (AllowAny, )
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserNotPasswordSerializer
+    # parser_classes = (MultiPartParser, FormParser,)
 
     def create(self, request, *args, **kwargs): # override
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+
         return Response(
             {'user_info': '9',#settings.ERRORS['user_info']['9']
              'user_data': serializer.data},
@@ -67,6 +76,7 @@ class UserCreateViewSet(
     @action(methods=['POST'], detail=False)
     @permission_is_auth_tmp_token()
     def confirm_reset_password(self, request, *args, **kwargs):
+        '''# Представление для подтверждения сброса пароля пользователя пользователя #'''
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -144,17 +154,8 @@ class UserCreateViewSet(
         )
 
 
-class UserDetailDestroyUpdateViewSet(
-    RetrieveModelMixin,
-    GenericViewSet,
-    UserUpdateDestroyRetrieve
-):
-
-    permission_classes = (IsAuthenticated, )
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def permission_denied(self, request, message=None, code=None):
+class PermissionAPIViewOverride(APIView):
+    def permission_denied(self, request, message=None, code=None): # Override
         """
         If request is not permitted, determine what kind of exception to raise.
         """
@@ -164,6 +165,18 @@ class UserDetailDestroyUpdateViewSet(
                 {'auth_error': '20'}
             )
         raise exceptions.PermissionDenied(detail=message, code=code)
+
+
+class UserDetailDestroyUpdateViewSet(
+    RetrieveModelMixin,
+    GenericViewSet,
+    PermissionAPIViewOverride,
+    UserUpdateDestroyRetrieve
+):
+
+    permission_classes = (IsAuthenticated, )
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
     @action(methods=['GET', 'PUT', 'DELETE', 'PATCH'], detail=False)
     def me(self, request, *args, **kwargs):
@@ -178,10 +191,12 @@ class UserDetailDestroyUpdateViewSet(
 
     @action(methods=['GET'], detail=False)
     def logout(self, request, *args, **kwargs):
-        '''# Представление для выходы пользователя из системы. Удаление refresh_token из cookie #'''
+        # '''# Представление для выходы пользователя из системы. Удаление refresh_token из cookie #'''
+
+        logout(request.user)
 
         response = Response()
-        response.delete_cookie('refresh_token')
+        # response.delete_cookie('refresh_token')
         response.status_code = status.HTTP_204_NO_CONTENT
         return response
 
@@ -242,12 +257,50 @@ class JwtRefreshTokenAPIView(APIView):
         is_token_transferred(refresh_token)
 
         payload = Jwt.get_payload_from_refresh_token(refresh_token)
-
         user_id = payload.get('user_id')
-
         access_token = get_access_token(id=user_id)
 
         return Response(
             access_token,
             status=status.HTTP_200_OK
         )
+
+
+class AccessMediaAPIView(PermissionAPIViewOverride):
+    permission_classes = (IsAdmin, )
+
+    def get(self, request, *args, **kwargs):
+        file = serve(
+            request,
+            request.META['PATH_INFO'].replace(settings.MEDIA_URL, ''),
+            settings.MEDIA_ROOT
+        )
+        return file
+
+
+class OpeningAccessClientAPIView(PermissionAPIViewOverride):
+    # permission_classes = (IsDirector, )
+
+    # @permission_is_auth_tmp_token()
+    def get(self, request, *args, **kwargs):
+        email = request.GET.get('email')
+        if not email:
+            return Response({'Email': 'is not'})
+
+        user = find_or_get_user_model(email=email)
+        user.is_active = True
+        user.is_verify = True
+        user.save()
+
+        return Response({'Email': 'there is '})
+
+
+class TestAPIView(PermissionAPIViewOverride):
+    def get(self, request, *args, **kwargs):
+        send_email.delay(
+            email='myhosttt@mail.ru',
+            subject='-->>| Test Email |-->>'
+        )
+
+        print('dddd')
+        return Response({'EMAIL': 'SEND'})
