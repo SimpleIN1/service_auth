@@ -39,8 +39,6 @@
 TYPE REQUESt - POST \
 { \
     'email': 'user@user.com',\
-    'password': '1234-_Rd',\
-    're_password': '1234-_Rd',\
     'last_name': 'user1_last_name',\
     'first_name': 'user1_first_name',\
     'middle_name': 'user1_middle_name', (Необезательное поле)\
@@ -105,8 +103,18 @@ REQUEST TYPE - get(удаляется refresh_token из кук c клиента
 REQUEST TYPE - GET, POST, PATCH, DELETE\
 POST\
 {\
-}
-
+    'email': 'user@user.com',\
+    'last_name': 'user1_last_name',\
+    'first_name': 'user1_first_name',\
+    'middle_name': 'user1_middle_name',\
+    'organization_name': 'user1_organization_name',\
+    'password': 'password'\
+}\
+PATCH \
+{ не все параметры post}\
+DELETE \
+{}\
+GET \
 
 - api/auth/user/(?P<pk>[^/.]+)/
 REQUEST TYPE - GET
@@ -119,6 +127,7 @@ REQUEST TYPE - POST
 }\
 
 - api/auth/jwt/refresh/ \
-REQUEST TYPE - GET (считается что refresh_token хранится в куках)\
-
-
+REQUEST TYPE - GET (считается а может и не считается что refresh_token хранится в куках)\
+{ \
+    'refresh_token': '{token}'\
+}\
