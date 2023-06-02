@@ -219,27 +219,41 @@ class UserDetailDestroyUpdateViewSet(
 class JwtCreateTokenAPIView(APIView):
     permission_classes = (AllowAny, )
 
-    @method_decorator(ensure_csrf_cookie) #ensure_csrf_cookie для отправления страницы
+    #@method_decorator(ensure_csrf_cookie) #ensure_csrf_cookie для отправления страницы
     def post(self, request, *args, **kwargs):
         '''# Получение пары токенов (JWT) #'''
 
+       # if request.method == 'OPTIONS':
+       #     print('OPTIONS')
+       #     print('OPTIONS')
+
+        print(request.data)
+
+        
         serializer = JwtLoginSerializer(data=request.data)
+        #print('create_token')
         serializer.is_valid(raise_exception=True)
 
         token = get_couple_tokens(
             **serializer.validated_data
         )
 
+        print(serializer.validated_data)
+        print(token)        
+
         response = Response()
+        
         response.data = token
         response.status_code = status.HTTP_200_OK
-        response.set_cookie(
-            key='refresh_token',
-            value=token['refresh'],
-            httponly=True,
-            secure=True,
-            samesite='strict'
-        )
+        
+        print('RETURN RESPONSE')
+        #response.set_cookie(
+        #    key='refresh_token',
+        #    value=token['refresh'],
+        #    httponly=True,
+        #    secure=True,
+        #    samesite='strict'
+        #)
 
         return response
 
@@ -247,19 +261,20 @@ class JwtCreateTokenAPIView(APIView):
 class JwtRefreshTokenAPIView(APIView):
     permission_classes = (AllowAny, )
 
-    @csrf_exempt
-    def get(self, request, *args, **kwargs):
+    #@csrf_exempt
+    def post(self, request, *args, **kwargs):
         '''#  Обновление access_token #'''
 
         # refresh_token = request.data.get('refresh', None)
-        refresh_token = request.COOKIES.get('refresh_token', None)
+        refresh_token = request.data.get('refresh_token', None)
+        #reresh_token = request.COOKIES.get('refresh_token', None)
 
         is_token_transferred(refresh_token)
 
         payload = Jwt.get_payload_from_refresh_token(refresh_token)
         user_id = payload.get('user_id')
         access_token = get_access_token(id=user_id)
-
+        print('RETURN RESPONSE ref')
         return Response(
             access_token,
             status=status.HTTP_200_OK

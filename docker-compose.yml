@@ -69,9 +69,9 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        command: bash -c "venv/bin/python manage.py makemigrations AccountsApp && 
-                  venv/bin/python manage.py migrate && 
-                  venv/bin/python manage.py create_superuser"
+        #command: bash -c "venv/bin/python manage.py makemigrations AccountsApp && 
+        #          venv/bin/python manage.py migrate && 
+        #          venv/bin/python manage.py create_superuser"
         volumes:
             - ./Backend/AccountsProject/AccountsApp/migrations/:/home/django-user/AccountsApp/migrations/
         links:
@@ -121,7 +121,7 @@ services:
             EMAIL_HOST_PASSWORD: "${EMAIL_HOST_PASSWORD}"
             DEFAULT_FROM_EMAIL: "${DEFAULT_FROM_EMAIL}"
 
-            CELERY_BROKER_URl: "redis://redis:6379/0"
+            CELERY_BROKER_URL: "redis://redis:6379/0"
             CELERY_RESULT_BACKEND: "redis://redis:6379/0"
         links:
             - redis

@@ -65,7 +65,7 @@ MIDDLEWARE = [
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
-CSRF_TRUSTED_ORIGINS = ['http://62.113.111.207:8080']
+CSRF_TRUSTED_ORIGINS = ['http://10.4.47.52:8080', 'https://fam.rcpod.space']
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
@@ -183,9 +183,9 @@ ACCOUNT_EMAIL_REQUIRED = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/static-admin/'
 MEDIA_URL = '/media/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static-admin')
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Default primary key field type
@@ -289,9 +289,9 @@ ERRORS = {
     }
 }
 
-PROTOCOL = 'http'
-HOST = '127.0.0.1'#'fire-activity-map1.com'
-PORT = '8080'
+PROTOCOL = 'https'
+HOST = 'fam.rcpod.space'#'fire-activity-map1.com'
+PORT = '443'
 URL_PAGE = {
     'email_verify': 'url1',
     'reset_password': 'url1',
@@ -302,7 +302,7 @@ PASSWORD_RESET_TIMEOUT = 60 * 60 * 24 * 10
 
 CONTENT_TYPE = {
     'application/vnd.oasis.opendocument.text': 'odt',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.files': 'docx',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
     'application/pdf': 'pdf',
     'application/msword': 'doc',
 }

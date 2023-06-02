@@ -29,7 +29,7 @@ def user_post_save(created, **kwargs):
             'protocol': settings.PROTOCOL,
             'site_name': settings.HOST,
         }).send()
-
+        print(email, 'письмо отправлено')
         emails = filter_user_model(type_user=1, is_getter_email=True)
         if emails:
             # Отправка письма директору

@@ -4,6 +4,7 @@ from django.contrib.auth import password_validation
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import FileExtensionValidator
 from django.conf import settings
 import uuid
 
@@ -73,7 +74,14 @@ class User(AbstractUser):
     file = models.FileField(
         verbose_name='Файл(ы) для получения доступа',
         upload_to=lambda inst, fn: upload_to(inst, fn),
-        default=''
+        blank=True,
+        null=True,
+        default='',
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=['pdf', 'odt', 'docx', 'doc']
+            )
+        ]
     )
 
 
