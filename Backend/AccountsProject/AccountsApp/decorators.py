@@ -43,6 +43,9 @@ def permission_is_auth_tmp_token(is_password=False):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
 
+            # print(args, kwargs)
+
+            # serializer = TokenSerializer(data=args[1].data)
             serializer = TokenSerializer(data=args[1].data)
             serializer.is_valid(raise_exception=True)
 
@@ -53,13 +56,16 @@ def permission_is_auth_tmp_token(is_password=False):
                 uuid=serializer.data.get('uuid'),
                 # **serializer.data
             )
-
+            # print(user)
+            # print(token)
             if not check_token(user, token, is_password):
                 raise exceptions.AuthenticationFailed(
                     {'available_tmp_error': '17'},#settings.ERRORS['available_tmp_error']['17']},
                     code=status.HTTP_401_UNAUTHORIZED
                 )
-
+            kwargs['type_user'] = user.type_user
+            # print(kwargs)
+            # print(zip(kwargs))
             result = func(*args, **kwargs)
             return result
 

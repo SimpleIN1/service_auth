@@ -1,0 +1,61 @@
+
+{% load i18n %}
+
+{% block html_body %}
+<div style="padding: 10px">
+    <div style="
+      width: calc(100% - 32px);
+      max-width: 568px;
+      position: relative;
+      padding: 16px;
+      text-align: left;
+      background-color: #ffffff;
+      font-family: 'Mont W05','sst',Arial,sans-serif;
+       box-shadow: 0 0 10px 5px rgba(221, 221, 221, 1);
+      border-radius: 3px;
+    ">
+        <div style="border-bottom: 1px solid #d3d3d3;">
+            <h1 style="margin: 10px 10px 10px 0">Данные для входа</h1>
+        </div>
+
+        <div style="font-size: 17px">
+            <p>
+                {% blocktrans %}Вам отправлены данные для входа на
+                <a href="{{ protocol }}://{{ site_name }}:{{ port }}" style="text-decoration: none;">{{ site_name }}</a>.
+                {% endblocktrans %}
+            </p>
+
+            <div style="
+                padding: 10px;
+                background-color: #e8e8fd;
+                color: #222;
+                margin-bottom: 10px;
+                opacity: 0.9;
+            ">
+              <p><b>{% trans "Данные для входа" %}</b></p>
+              <p><b>{% trans "Почта:" %}</b> {{ email }}</p>
+              <p><b>{% trans "Пароль:" %}</b> {{ password }}</p>
+            </div>
+
+            <a href="{{ protocol }}://{{ site_name }}:{{ port }}/{{ url }}"
+               style="padding: 13px;
+               border-radius: 3px;
+               background-color: #9393e3;
+               justify-content: center;
+               display: flex;
+               text-decoration: none;
+               font-size: large;
+               color: #ffffff"
+            >
+                Перейти на сайт
+            </a>
+
+            <p>{% trans "Спасибо за использование нашего сайта!" %}</p>
+
+            <p>{% blocktrans %}Команда
+            <a href="{{ protocol }}://{{ site_name }}:{{ port }}" style="text-decoration: none;">{{ site_name }}</a>
+            {% endblocktrans %}</p>
+        </div>
+    </div>
+</div>
+{% endblock html_body %}

@@ -286,16 +286,20 @@ ERRORS = {
     },
     'file_info': {
         '1': 'Данных нет.',
+    },
+    'user_access': {
+        '2': 'Пользователю предоставлен доступ.',
     }
 }
 
 PROTOCOL = 'https'
-HOST = 'fam.rcpod.space'#'fire-activity-map1.com'
+HOST = 'fam.rcpod.space'#
 PORT = '443'
 URL_PAGE = {
     'email_verify': 'url1',
     'reset_password': 'url1',
     'recovery_account': 'url1',
+    'url_for_access_client': 'api/auth/access_client/',
 }
 
 PASSWORD_RESET_TIMEOUT = 60 * 60 * 24 * 10

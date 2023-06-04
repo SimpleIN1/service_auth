@@ -178,3 +178,11 @@ class ChangePasswordSerializer(
     PasswordSerializer
 ):
     old_password = serializers.CharField(max_length=128, write_only=True)
+
+
+class OpeningAccessClientSerializer(
+    TokenSerializer,
+    ConfirmVerifyEMailSerializer,
+):
+    email_access=serializers.EmailField()
+    pass

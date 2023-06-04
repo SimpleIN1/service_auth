@@ -1,6 +1,6 @@
 
 from django.conf import settings
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponsePermanentRedirect
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
@@ -24,10 +24,10 @@ from .services.mail.mail import Mail
 from .services.user_view import UserUpdateDestroyRetrieve, perform_confirm_verify_user, \
     perform_additional_to_reset_password, perform_reset_password, get_couple_tokens, get_access_token, \
     is_token_transferred, perform_additional_to_recovery_user, perform_recovery_user, perform_resend_email_letter, \
-    perform_change_password, find_or_get_user_model, logout
+    perform_change_password, find_or_get_user_model, logout, open_access_user
 from AccountsApp.serializers import UserSerializer, EmailSerializer, JwtLoginSerializer, ResetPasswordSerializer, \
     ConfirmVerifyEMailSerializer, RecoveyAccount, ResendLetterSerializer, ChangePasswordSerializer, \
-    UserNotPasswordSerializer
+    UserNotPasswordSerializer, OpeningAccessClientSerializer
 from AccountsApp.services.token.jwt_token import Jwt
 from AccountsApp.tasks import send_email
 
@@ -223,11 +223,7 @@ class JwtCreateTokenAPIView(APIView):
     def post(self, request, *args, **kwargs):
         '''# Получение пары токенов (JWT) #'''
 
-       # if request.method == 'OPTIONS':
-       #     print('OPTIONS')
-       #     print('OPTIONS')
-
-        print(request.data)
+        # print(request.data)
 
         
         serializer = JwtLoginSerializer(data=request.data)
@@ -238,15 +234,15 @@ class JwtCreateTokenAPIView(APIView):
             **serializer.validated_data
         )
 
-        print(serializer.validated_data)
-        print(token)        
+        # print(serializer.validated_data)
+        # print(token)
 
         response = Response()
         
         response.data = token
         response.status_code = status.HTTP_200_OK
         
-        print('RETURN RESPONSE')
+        # print('RETURN RESPONSE')
         #response.set_cookie(
         #    key='refresh_token',
         #    value=token['refresh'],
@@ -274,7 +270,7 @@ class JwtRefreshTokenAPIView(APIView):
         payload = Jwt.get_payload_from_refresh_token(refresh_token)
         user_id = payload.get('user_id')
         access_token = get_access_token(id=user_id)
-        print('RETURN RESPONSE ref')
+
         return Response(
             access_token,
             status=status.HTTP_200_OK
@@ -294,20 +290,30 @@ class AccessMediaAPIView(PermissionAPIViewOverride):
 
 
 class OpeningAccessClientAPIView(PermissionAPIViewOverride):
-    # permission_classes = (IsDirector, )
+    permission_classes = (AllowAny, )
 
-    # @permission_is_auth_tmp_token()
+    @permission_is_auth_tmp_token(is_password=True)
     def get(self, request, *args, **kwargs):
-        email = request.GET.get('email')
-        if not email:
-            return Response({'Email': 'is not'})
 
-        user = find_or_get_user_model(email=email)
-        user.is_active = True
-        user.is_verify = True
-        user.save()
+        # print(request.GET)
+        if kwargs.get('type_user') != 1:
+            # return HttpResponsePermanentRedirect('https://fam.rcpod.space/')
+            return Response(
+                {'available_tmp_error': 17},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
 
-        return Response({'Email': 'there is '})
+        serializer = OpeningAccessClientSerializer(data=request.GET)
+        serializer.is_valid(raise_exception=True)
+
+        user = find_or_get_user_model(email=serializer.data.get('email_access'))
+        open_access_user(user)
+
+        return HttpResponsePermanentRedirect('https://fam.rcpod.space/')
+        # return Response(
+        #     {'user_access': 2},
+        #     status=status.HTTP_200_OK
+        # )
 
 
 class TestAPIView(PermissionAPIViewOverride):

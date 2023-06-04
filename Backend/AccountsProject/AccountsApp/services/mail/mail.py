@@ -6,9 +6,6 @@ import logging
 
 
 class Mail:
-    # def __init__(self):
-    #     pa
-        # self.mail = EmailMessage()
 
     def send_mail(self, email_list, subject=None, message=None, html_message=None, filename=None):
         try:

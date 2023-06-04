@@ -1,3 +1,4 @@
+import secrets
 from typing import Tuple
 
 from django.conf import settings
@@ -7,8 +8,10 @@ from rest_framework import status, exceptions
 from rest_framework.response import Response
 
 from AccountsApp.services.token.jwt_token import Jwt
-from .mail.mail_send import EmailResetPassword, EmailVerify, RecoveryAccount, RegisteredProfile
+from .mail.mail_send import EmailResetPassword, EmailVerify, RecoveryAccount, RegisteredProfile, InfoCreatedProfile, \
+    SuccessOpeningAccessClient, LoginDetails
 from .token.mail_token import create_token
+from ..models import upload_to
 
 User = get_user_model()
 
@@ -87,6 +90,10 @@ class UserUpdateDestroyRetrieve:
         )
 
 
+class UserBase:
+    pass
+
+
 def find_or_get_user_model(code='4', **kwargs) -> User:
     '''# Проверка пользователя на то, что пользователь существует #'''
 
@@ -104,7 +111,7 @@ def filter_user_model(code='4', **kwargs) -> User:
     '''# Проверка пользователя на то, что пользователь существует #'''
 
     try:
-        user = User.objects.get(**kwargs)
+        user = User.objects.filter(**kwargs)
     except User.DoesNotExist:
         return None
     return user
@@ -308,7 +315,7 @@ def perform_resend_email_letter(**kwargs) -> Tuple[str, str, int]:
 
     if not user.is_verify: #and user.check_password(password):
 
-        token = create_token(user)
+        # token = create_token(user)
 
         RegisteredProfile(email=user.email, context={
             'protocol': settings.PROTOCOL,
@@ -331,3 +338,69 @@ def perform_change_password(user: User, **kwargs) -> Tuple[str, str, int]:
     user.save()
 
     return ('user_info', '7', status.HTTP_204_NO_CONTENT)
+
+
+def send_email_directors(instance):
+    directors = filter_user_model(type_user=1, is_getter_email=True)
+
+    if directors:
+        print(directors)
+        # Отправка письма директору(рам)
+        try:
+            if not instance.is_added_admin_panel:
+                filename = instance.file.name
+            else:
+                filename = upload_to(instance, '')
+
+            for director in directors:
+                token = create_token(director, is_password=True)
+                InfoCreatedProfile(email=[director.email], context={
+                    'protocol': settings.PROTOCOL,
+                    'site_name': settings.HOST,
+                    'port': settings.PORT,
+                    'last_name': instance.last_name,
+                    'first_name': instance.first_name,
+                    'middle_name': instance.middle_name,
+                    'email': instance.email,
+                    'org_name': instance.organization_name,
+                    'url': f'{settings.URL_PAGE["url_for_access_client"]}?email={director.email}&'
+                           f'token={token}&uuid={director.uuid}&email_access={instance.email}',
+                }).send(filename)
+        except Exception as e:
+            print(e)
+
+
+def generate_password(length: int = 11) -> str:
+    return secrets.token_urlsafe(length)
+
+
+def open_access_user(instance):
+    password = generate_password()
+    instance.set_password(password)
+
+    instance.is_verify = True
+    instance.is_email_getted = True
+    SuccessOpeningAccessClient(
+        email=[instance.email],
+        context={
+            'protocol': settings.PROTOCOL,
+            'site_name': settings.HOST,
+            'port': settings.PORT,
+            'email': instance.email,
+            'password': password,
+        }
+    ).send()
+    instance.save()
+
+
+def send_login_detail(email, password):
+    LoginDetails(
+        email=[email],
+        context={
+            'protocol': settings.PROTOCOL,
+            'site_name': settings.HOST,
+            'port': settings.PORT,
+            'email': email,
+            'password': password,
+        }
+    ).send()

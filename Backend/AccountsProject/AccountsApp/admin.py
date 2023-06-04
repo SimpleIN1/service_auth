@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
+from AccountsApp.forms import UserPasswordNorRequiredCreationForm
+
 # from AccountsApp.models import FileModel
 
 User = get_user_model()
@@ -14,6 +16,7 @@ class UserModelAdmin(UserAdmin):
     list_display = [
         'id',
         'email',
+        # 'uuid',
         'last_name',
         'first_name',
         'middle_name',
@@ -54,9 +57,15 @@ class UserModelAdmin(UserAdmin):
                     "organization_name",
                     "type_user",
                     "is_getter_email",
+                    "select_action_password",
+
+                    "send_gen_password",
                     "password1",
                     "password2",
-                    'file'
+                    "send_password",
+                    "send_email_to_director",
+                    "open_access",
+                    'file',
                 ),
             },
         ),
@@ -91,3 +100,9 @@ class UserModelAdmin(UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
+    exclude = ('is_email_getted', )
+
+    add_form = UserPasswordNorRequiredCreationForm
+
+    class Media:
+        js = ('AccountsApp/js/base-admin.js', )

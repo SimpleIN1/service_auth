@@ -27,6 +27,11 @@
                 {% endblocktrans %}
             </p>
 
+            <p>{% trans "Открыть доступ можно через админ панель " %}
+                <a href="{{ protocol }}://{{ site_name }}:{{port}}/admin/" style="text-decoration: none;">{{ site_name }}</a>.
+                {% trans "или нажав на кнопу ниже" %}
+            </p>
+
             <div style="
                 padding: 10px;
                 background-color: #e8e8fd;
@@ -41,7 +46,7 @@
                 <p><b>{% trans "Название организации:" %}</b> {{ org_name }}</p>
             </div>
 
-            <a href="{{ protocol }}://{{ site_name }}:{{port}}" style="
+            <a href="{{ protocol }}://{{ site_name }}:{{port}}/{{url}}" style="
                 padding: 13px;
                 border-radius: 3px;
                 background-color: #9393e3;
@@ -51,7 +56,7 @@
                 font-size: large;
                 color: #ffffff
             ">
-                Перейти на сайт
+                Предоставить доступ
             </a>
 
             <p>{% trans "Спасибо за использование нашего сайта!" %}</p>

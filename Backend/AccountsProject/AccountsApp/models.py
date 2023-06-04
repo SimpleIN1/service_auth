@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 
 from django.contrib.auth import password_validation
@@ -7,13 +8,17 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator
 from django.conf import settings
 import uuid
+from mimetypes import MimeTypes
 
 
 def upload_to(inst, fn):
-    dirname = str(inst.email).split('@')[0]
-    expansion = settings.CONTENT_TYPE[inst.file._file.content_type]
-    filename = f'{inst.last_name}_{inst.first_name}_{inst.middle_name}.{expansion}'
-    return f'media/files/{dirname}/{filename}'
+    try:
+        dirname = str(inst.email).split('@')[0]
+        expansion = settings.CONTENT_TYPE[inst.file._file.content_type]
+        filename = f'{inst.last_name}_{inst.first_name}_{inst.middle_name}.{expansion}'
+        return f'media/files/{dirname}/{filename}'
+    except Exception as e:
+        print(traceback.format_exc())
 
 
 class User(AbstractUser):
@@ -52,6 +57,14 @@ class User(AbstractUser):
         max_length=400,
         verbose_name='Наименование организации'
     )
+    is_email_getted = models.BooleanField(
+        default=False,
+    )
+
+    is_added_admin_panel = models.BooleanField(
+        default=False
+    )
+
     is_verify = models.BooleanField(
         default=False,
         verbose_name='Подтвержденная почта.'
@@ -68,6 +81,7 @@ class User(AbstractUser):
     is_getter_email = models.BooleanField(
         verbose_name='Является получателем писем для проверки документов',
         default=False,
+        help_text=_('При каждом добавлении пользователя, директор будет получать письмо с данными о пользователе.')
     )
     uuid = models.UUIDField(default=uuid.uuid4(), db_index=True)
     is_reset_password = models.BooleanField(default=False)
@@ -81,9 +95,9 @@ class User(AbstractUser):
             FileExtensionValidator(
                 allowed_extensions=['pdf', 'odt', 'docx', 'doc']
             )
-        ]
+        ],
+        help_text=_(f'Поддерживаемые форматы: {", ".join(["pdf", "odt", "docx", "doc"])}'),
     )
-
 
     def update_last_login(self):
         self.last_login = datetime.now()
