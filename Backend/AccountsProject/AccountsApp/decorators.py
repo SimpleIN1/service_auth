@@ -35,7 +35,7 @@ def exception_jwt(func):
     return wrapper
 
 
-def permission_is_auth_tmp_token(is_password=False):
+def permission_is_auth_tmp_token(is_password=False, type_request='POST'):
 
     def decorator(func):
         from AccountsApp.services.user_view import find_or_get_user_model
@@ -43,10 +43,14 @@ def permission_is_auth_tmp_token(is_password=False):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
 
-            # print(args, kwargs)
-
+            print(args, kwargs)
+            if type_request.lower() == 'post':
+                data = args[1].data
+            elif type_request.lower() == 'get':
+                data = args[1].GET
+            print(data)
             # serializer = TokenSerializer(data=args[1].data)
-            serializer = TokenSerializer(data=args[1].data)
+            serializer = TokenSerializer(data=data)
             serializer.is_valid(raise_exception=True)
 
             token = serializer.data.get('token')

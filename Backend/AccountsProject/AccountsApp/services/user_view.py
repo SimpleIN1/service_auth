@@ -25,7 +25,7 @@ class UserUpdateDestroyRetrieve:
         if user.email != new_email:
             # token = create_token(id, new_email, uuid, settings.SECRET_KEY, 'confirm_verify_email') #Jwt.create_tmp_access_token(new_email)
             token = create_token(user, True)
-            EmailVerify(email=new_email, context={
+            EmailVerify(email=[new_email], context={
                 'protocol': settings.PROTOCOL,
                 'site_name': settings.HOST,
                 'url': f'{settings.URL_PAGE["email_verify"]}?email={new_email}&'
@@ -128,7 +128,7 @@ def is_not_verify_user(user: User) -> None:
     if not user.is_verify:
 
         token = create_token(user)
-        EmailVerify(email=user.email, context={
+        EmailVerify(email=[user.email], context={
             'protocol': settings.PROTOCOL,
             'site_name': settings.HOST,
             'url': f'{settings.URL_PAGE["email_verify"]}?email={user.email}&'
@@ -200,7 +200,7 @@ def perform_additional_to_reset_password(**kwargs) -> Tuple[str, str, int]:
     uuid = user.uuid
     token = create_token(user) #.id, email, uuid, settings.SECRET_KEY, 'confirm_reset_password')#Jwt.create_tmp_access_token(email)
 
-    EmailResetPassword(kwargs.get('email'), context={
+    EmailResetPassword([kwargs.get('email')], context={
         'protocol': settings.PROTOCOL,
         'site_name': settings.HOST,
         'port': settings.PORT,
@@ -243,7 +243,7 @@ def perform_additional_to_recovery_user(**kwargs) -> Tuple[str, str, int]:
     uuid = user.uuid
     token = create_token(user)#.id, email, uuid, settings.SECRET_KEY, 'confirm_recovery_user')#Jwt.create_tmp_access_token(email)
 
-    RecoveryAccount(kwargs.get('email'), context={
+    RecoveryAccount([kwargs.get('email')], context={
         'protocol': settings.PROTOCOL,
         'site_name': settings.HOST,
         'port': settings.PORT,
@@ -317,7 +317,7 @@ def perform_resend_email_letter(**kwargs) -> Tuple[str, str, int]:
 
         # token = create_token(user)
 
-        RegisteredProfile(email=user.email, context={
+        RegisteredProfile(email=[user.email], context={
             'protocol': settings.PROTOCOL,
             'site_name': settings.HOST,
             'port': settings.PORT,
@@ -378,19 +378,23 @@ def open_access_user(instance):
     password = generate_password()
     instance.set_password(password)
 
-    instance.is_verify = True
-    instance.is_email_getted = True
-    SuccessOpeningAccessClient(
-        email=[instance.email],
-        context={
-            'protocol': settings.PROTOCOL,
-            'site_name': settings.HOST,
-            'port': settings.PORT,
-            'email': instance.email,
-            'password': password,
-        }
-    ).send()
-    instance.save()
+    if not (instance.is_active and instance.is_verify):
+        instance.is_active = True
+        instance.is_verify = True
+        instance.is_email_getted = True
+        instance.save()
+
+        SuccessOpeningAccessClient(
+            email=[instance.email],
+            context={
+                'protocol': settings.PROTOCOL,
+                'site_name': settings.HOST,
+                'port': settings.PORT,
+                'email': instance.email,
+                'password': password,
+            }
+        ).send()
+
 
 
 def send_login_detail(email, password):
