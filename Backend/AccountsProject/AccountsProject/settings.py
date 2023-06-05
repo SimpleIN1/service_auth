@@ -297,7 +297,7 @@ HOST = 'fam.rcpod.space'#
 PORT = '443'
 URL_PAGE = {
     'email_verify': 'url1',
-    'reset_password': 'url1',
+    'reset_password': 'restore_password',
     'recovery_account': 'url1',
     'url_for_access_client': 'api/auth/access_client/',
 }

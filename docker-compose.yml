@@ -32,10 +32,12 @@ services:
             context: .
             dockerfile: Dockerfile
         restart: unless-stopped
-        command: bash -c "venv/bin/gunicorn --workers 4 --bind 0.0.0.0:8000 AccountsProject.wsgi:application"
+        command: bash -c "venv/bin/gunicorn --workers 20 --bind 0.0.0.0:8000 AccountsProject.wsgi:application"
         volumes:
             - static_volume:/home/django-user/static
             - ./Backend/AccountsProject/AccountsApp/migrations/:/home/django-user/AccountsApp/migrations/
+            - ./Backend/AccountsProject/media/:/home/django-user/media/
+
         expose:
             - "8000"
         links:

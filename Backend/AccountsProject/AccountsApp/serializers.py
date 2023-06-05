@@ -15,31 +15,31 @@ User = get_user_model()
 class BaseSerializer(
     serializers.Serializer
 ):
-    # def is_valid(self, *, raise_exception=False):
-    #     # This implementation is the same as the default,
-    #     # except that we use lists, rather than dicts, as the empty case.
-    #     assert hasattr(self, 'initial_data'), (
-    #         'Cannot call `.is_valid()` as no `data=` keyword argument was '
-    #         'passed when instantiating the serializer instance.'
-    #     )
-    #
-    #     if not hasattr(self, '_validated_data'):
-    #         try:
-    #             self._validated_data = self.run_validation(self.initial_data)
-    #         except ValidationError as exc:
-    #             self._validated_data = []
-    #             self._errors = exc.detail
-    #         else:
-    #             self._errors = []
-    #
-    #     if self._errors and raise_exception:
-    #         if self.errors.get('email') and self.errors.get('email')[0] == '19':
-    #             raise ValidationError({'fields_error': '19'}) #self.errors})
-    #         else:
-    #             raise ValidationError({'fields_error': '18'}) # self.errors})
-    #
-    #     return not bool(self._errors)
-    pass
+     def is_valid(self, *, raise_exception=False):
+         # This implementation is the same as the default,
+         # except that we use lists, rather than dicts, as the empty case.
+         assert hasattr(self, 'initial_data'), (
+             'Cannot call `.is_valid()` as no `data=` keyword argument was '
+             'passed when instantiating the serializer instance.'
+         )
+    
+         if not hasattr(self, '_validated_data'):
+             try:
+                 self._validated_data = self.run_validation(self.initial_data)
+             except ValidationError as exc:
+                 self._validated_data = []
+                 self._errors = exc.detail
+             else:
+                 self._errors = []
+    
+         if self._errors and raise_exception:
+             if self.errors.get('email') and self.errors.get('email')[0] == '19':
+                 raise ValidationError({'fields_error': '19'}) #self.errors})
+             else:
+                 raise ValidationError({'fields_error': '18'}) # self.errors})
+    
+         return not bool(self._errors)
+    #pass
 
 
 class EmailSerializer(BaseSerializer):
