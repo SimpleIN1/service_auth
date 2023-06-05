@@ -1,3 +1,4 @@
+import traceback
 from pathlib import Path
 
 from django.conf import settings
@@ -18,8 +19,12 @@ class Mail:
             mail.attach_alternative(html_message, "text/html")
             # open('test_txt.txt', 'w')
             logging.warning('blabla')
+
             # mail.content_subtype='html'
+            logging.warning(filename)
+
             if filename:
+                logging.warning('->|12344|<-')
                 mail.attach_file(filename)
             mail.send()
             # send_mail(
@@ -33,3 +38,4 @@ class Mail:
 
         except BadHeaderError:
             logging.warning('BadHeaderError')
+

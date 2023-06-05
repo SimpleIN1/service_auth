@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 from django.conf import settings
 
@@ -14,6 +15,7 @@ def send_email(email, subject, message='', html_message='', filename=None):
         mail = Mail()
         mail.send_mail(email, subject, message, html_message, filename)
     except Exception as er:
+        # logging.warning(traceback.format_exc())
         logging.warning(f'Task of the faction send_mail call error: {er}')
 
 
@@ -21,9 +23,9 @@ def send_email(email, subject, message='', html_message='', filename=None):
 def send_email_to_directors(directors, instance):
     from AccountsApp.services.mail.mail_send import InfoCreatedProfile
     try:
-        print('--'*12)
-        print(1234)
-        print('--'*12)
+        # print('--'*12)
+        # print(1234)
+        # print('--'*12)
         for director in directors:
             token = create_token(director, is_password=True)
             InfoCreatedProfile(email=[director.email], context={

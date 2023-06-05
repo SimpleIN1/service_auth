@@ -1,3 +1,5 @@
+import os
+
 from django.conf import settings
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
@@ -28,9 +30,14 @@ def user_post_save(created, **kwargs):
         # print('==')
         # print(instance.file._file)
         # print('==')
+        # print('***(--')
+        # print(os.listdir('media/files/gorgh31/'))
+        # print('***(--')
         send_email_directors(instance)
         # send_email_to_directors.delay(directors, instance)
-
+        # print('***(')
+        # print(os.listdir('media/files/gorgh31/'))
+        # print('***(')
 
 # @receiver(pre_save, sender=User)
 # def user_model_pre_save(sender, instance, *args, **kwargs):

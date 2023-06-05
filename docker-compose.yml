@@ -71,7 +71,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        #command: bash -c "venv/bin/python manage.py makemigrations AccountsApp && 
+        #command: bash -c "venv/bin/python manage.py makemigrations AccountsApp &&
         #          venv/bin/python manage.py migrate && 
         #          venv/bin/python manage.py create_superuser"
         volumes:
@@ -82,7 +82,7 @@ services:
         depends_on:
             - postgres
             - redis
-            - rabbit    
+            - rabbit
         env_file:
             .env
         environment:
@@ -109,7 +109,8 @@ services:
             dockerfile: Dockerfile
         restart: unless-stopped
         command: bash -c "/home/django-user/venv/bin/celery -A celery_app worker --loglevel=debug --concurrency=4"
-
+        volumes:
+            - ./Backend/AccountsProject/media/:/home/django-user/media/
         env_file:
             - .env
         environment:

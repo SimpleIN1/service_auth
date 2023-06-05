@@ -4,6 +4,7 @@ window.addEventListener("load", function() {
         $(function () {
             var id_type_user = $('#id_type_user');
             var id_select_action_password = $('#id_select_action_password');
+            var id_open_access = $('#id_open_access');
 
             var field_send_password = $('.field-send_password');
             var field_send_gen_password = $('.field-send_gen_password');
@@ -41,13 +42,13 @@ window.addEventListener("load", function() {
             hide_elements_form();
 
             function clear_field_form(){
-                if (!id_password1[0] === undefined)
+                if (!(id_password1[0] === undefined))
                     id_password1[0].value = '';
-                if (!id_password2[0] === undefined)
+                if (!(id_password2[0] === undefined))
                     id_password2[0].value = '';
-                if (!id_send_password[0] === undefined)
+                if (!(id_send_password[0] === undefined))
                     id_send_password[0].checked = false;
-                if (!id_send_gen_password[0] === undefined)
+                if (!(id_send_gen_password[0] === undefined))
                     id_send_gen_password[0].checked = false;
             }
 
@@ -55,18 +56,30 @@ window.addEventListener("load", function() {
                 let type_user = parseInt(id_type_user.val());
 
                 if (type_user == 1){
+                    if (!(id_open_access[0] === undefined))
+                        id_open_access[0].checked = false;
+
                     field_is_getter_email.show();
                     field_send_email_to_director.hide();
 
-                    if (!id_send_email_to_director[0] === undefined)
+                    if (!(id_send_email_to_director[0] === undefined))
                         id_send_email_to_director[0].checked = false;
+
+                    // if (!(id_is_getter_email[0] === undefined)){
+                    //     console.log(id_is_getter_email[0].checked)
+                    //     id_is_getter_email[0].checked = false;
+                    //     console.log(id_is_getter_email[0].checked)
+                    // }
 
                     clear_field_form();
                 } else if (type_user == 2) {
+                    if (!(id_open_access[0] === undefined))
+                        id_open_access[0].checked = false;
+
                     field_is_getter_email.hide();
                     field_send_email_to_director.show()
 
-                    if (!id_is_getter_email[0] === undefined)
+                    if (!(id_is_getter_email[0] === undefined))
                         id_is_getter_email[0].checked = false;
 
                     clear_field_form();

@@ -295,7 +295,7 @@ class OpeningAccessClientAPIView(PermissionAPIViewOverride):
     @permission_is_auth_tmp_token(is_password=True, type_request='GET')
     def get(self, request, *args, **kwargs):
 
-        print(request.GET)
+        # print(request.GET)
         if kwargs.get('type_user') != 1:
             # return HttpResponsePermanentRedirect('https://fam.rcpod.space/')
             return Response(

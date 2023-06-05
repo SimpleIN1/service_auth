@@ -65,7 +65,7 @@ MIDDLEWARE = [
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
-CSRF_TRUSTED_ORIGINS = ['http://10.4.47.52:8080', 'https://fam.rcpod.space']
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0:8080', 'http://10.4.47.52:8080', 'https://fam.rcpod.space']
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',

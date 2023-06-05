@@ -344,7 +344,6 @@ def send_email_directors(instance):
     directors = filter_user_model(type_user=1, is_getter_email=True)
 
     if directors:
-        print(directors)
         # Отправка письма директору(рам)
         try:
             if not instance.is_added_admin_panel:
@@ -394,7 +393,6 @@ def open_access_user(instance):
                 'password': password,
             }
         ).send()
-
 
 
 def send_login_detail(email, password):
