@@ -19,6 +19,14 @@ class IsAdmin(BasePermission):
         return False
 
 
+class IsAdminOrDirector(BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_anonymous and request.user.is_authenticated and request.user.is_superuser or request.user.type_user == 1:
+            return True
+        return False
+
+
+
 class IsDirector(BasePermission):
     def has_permission(self, request, view):
         # if request.user.type_user == 1:

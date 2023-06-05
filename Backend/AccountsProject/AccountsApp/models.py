@@ -16,7 +16,7 @@ def upload_to(inst, fn):
         dirname = str(inst.email).split('@')[0]
         expansion = settings.CONTENT_TYPE[inst.file._file.content_type]
         filename = f'{inst.last_name}_{inst.first_name}_{inst.middle_name}.{expansion}'
-        return f'media/files/{dirname}/{filename}'
+        return f'files/{dirname}/{filename}'
     except Exception as e:
         print(traceback.format_exc())
 

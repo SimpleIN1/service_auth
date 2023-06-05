@@ -1,7 +1,7 @@
 
 from django.conf import settings
 from django.http import FileResponse, HttpResponsePermanentRedirect
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.static import serve
@@ -19,7 +19,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from AccountsApp.decorators import permission_is_auth_tmp_token
 # from .models import FileModel
-from .permissions import IsAdmin, IsDirector
+from .permissions import IsAdmin, IsDirector, IsAdminOrDirector
 from .services.mail.mail import Mail
 from .services.user_view import UserUpdateDestroyRetrieve, perform_confirm_verify_user, \
     perform_additional_to_reset_password, perform_reset_password, get_couple_tokens, get_access_token, \
@@ -30,7 +30,7 @@ from AccountsApp.serializers import UserSerializer, EmailSerializer, JwtLoginSer
     UserNotPasswordSerializer, OpeningAccessClientSerializer
 from AccountsApp.services.token.jwt_token import Jwt
 from AccountsApp.tasks import send_email
-
+from AccountsApp.log import error_wraps
 
 User = get_user_model()
 
@@ -44,6 +44,7 @@ class UserCreateViewSet(
     serializer_class = UserNotPasswordSerializer
     # parser_classes = (MultiPartParser, FormParser,)
 
+    @error_wraps
     def create(self, request, *args, **kwargs): # override
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -58,6 +59,7 @@ class UserCreateViewSet(
         )
 
     @action(methods=['POST'], detail=False)
+    @error_wraps
     def reset_password(self, request, *args, **kwargs):
         '''# Представление восстановления пароля. На вход принимает email, затем происходит отправка письма #'''
 
@@ -75,6 +77,7 @@ class UserCreateViewSet(
 
     @action(methods=['POST'], detail=False)
     @permission_is_auth_tmp_token()
+    @error_wraps
     def confirm_reset_password(self, request, *args, **kwargs):
         '''# Представление для подтверждения сброса пароля пользователя пользователя #'''
         serializer = ResetPasswordSerializer(data=request.data)
@@ -91,6 +94,7 @@ class UserCreateViewSet(
 
     @action(methods=['POST'], detail=False)
     @permission_is_auth_tmp_token(is_password=True)
+    @error_wraps
     def confirm_verify_email(self, request, *args, **kwargs): # Done
         '''# Представление для подтверждения почты пользователя #'''
 
@@ -107,6 +111,7 @@ class UserCreateViewSet(
         )#'you are verifying'
 
     @action(methods=['POST'], detail=False)
+    @error_wraps
     def recovery_user(self, request, *args, **kwargs):
         '''# Представление для восстановления пользователя #'''
 
@@ -124,6 +129,7 @@ class UserCreateViewSet(
 
     @action(methods=['POST'], detail=False)
     @permission_is_auth_tmp_token()
+    @error_wraps
     def confirm_recovery_user(self, request, *args, **kwargs):
         '''# Представление для поддтверждения восстановления пользователя #'''
 
@@ -139,6 +145,7 @@ class UserCreateViewSet(
         )
 
     @action(methods=['POST'], detail=False)
+    @error_wraps
     def resend_email_letter(self, request, *args, **kwargs):
         '''# Представление для переотправки письма пользователю при регистрации #'''
 
@@ -179,6 +186,7 @@ class UserDetailDestroyUpdateViewSet(
     serializer_class = UserSerializer
 
     @action(methods=['GET', 'PUT', 'DELETE', 'PATCH'], detail=False)
+    @error_wraps
     def me(self, request, *args, **kwargs):
         if request.method == 'GET':
             return self.get_user(request, *args, **kwargs)
@@ -190,6 +198,7 @@ class UserDetailDestroyUpdateViewSet(
             return self.patch_user(request, *args, **kwargs)
 
     @action(methods=['GET'], detail=False)
+    @error_wraps
     def logout(self, request, *args, **kwargs):
         # '''# Представление для выходы пользователя из системы. Удаление refresh_token из cookie #'''
 
@@ -201,6 +210,7 @@ class UserDetailDestroyUpdateViewSet(
         return response
 
     @action(methods=['POST'], detail=False)
+    @error_wraps
     def change_password(self, request, *args, **kwargs):
         serializer = ChangePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -220,6 +230,7 @@ class JwtCreateTokenAPIView(APIView):
     permission_classes = (AllowAny, )
 
     #@method_decorator(ensure_csrf_cookie) #ensure_csrf_cookie для отправления страницы
+    @error_wraps
     def post(self, request, *args, **kwargs):
         '''# Получение пары токенов (JWT) #'''
 
@@ -258,6 +269,7 @@ class JwtRefreshTokenAPIView(APIView):
     permission_classes = (AllowAny, )
 
     #@csrf_exempt
+    @error_wraps
     def post(self, request, *args, **kwargs):
         '''#  Обновление access_token #'''
 
@@ -278,14 +290,23 @@ class JwtRefreshTokenAPIView(APIView):
 
 
 class AccessMediaAPIView(PermissionAPIViewOverride):
-    permission_classes = (IsAdmin, )
+    #permission_classes = (IsAdminOrDirector, )
 
+    @error_wraps
     def get(self, request, *args, **kwargs):
-        file = serve(
-            request,
-            request.META['PATH_INFO'].replace(settings.MEDIA_URL, ''),
-            settings.MEDIA_ROOT
-        )
+        print('->|1244|<-')
+        #print(request)
+        #print(request.META['PATH_INFO'])
+        #print(request.META['PATH_INFO'].replace(settings.MEDIA_URL, ''))
+        if not request.user.is_anonymous and request.user.is_authenticated and (request.user.is_superuser or request.user.type_user == 1):
+            file = serve(
+                request,
+                request.META['PATH_INFO'].replace(settings.MEDIA_URL, ''),
+                settings.MEDIA_ROOT
+             )
+        else:
+            return render(request, '403.html', {'context': ''})
+
         return file
 
 
@@ -293,6 +314,7 @@ class OpeningAccessClientAPIView(PermissionAPIViewOverride):
     permission_classes = (AllowAny, )
 
     @permission_is_auth_tmp_token(is_password=True, type_request='GET')
+    @error_wraps
     def get(self, request, *args, **kwargs):
 
         # print(request.GET)
@@ -317,6 +339,7 @@ class OpeningAccessClientAPIView(PermissionAPIViewOverride):
 
 
 class TestAPIView(PermissionAPIViewOverride):
+    @error_wraps
     def get(self, request, *args, **kwargs):
         send_email.delay(
             email='myhosttt@mail.ru',

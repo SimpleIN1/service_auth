@@ -185,6 +185,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 
 STATIC_URL = '/static-admin/'
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-admin')
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
