@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from AccountsApp.services.token.jwt_token import Jwt
 from .mail.mail_send import EmailResetPassword, EmailVerify, RecoveryAccount, RegisteredProfile, InfoCreatedProfile, \
-    SuccessOpeningAccessClient, LoginDetails, ChangePassword
+    SuccessOpeningAccessClient, LoginDetails, ChangePassword, OpeningAccessToApp
 from .token.mail_token import create_token
 from ..models import upload_to
 
@@ -96,14 +96,18 @@ class UserBase:
 
 def find_or_get_user_model(code='4', **kwargs) -> User:
     '''# Проверка пользователя на то, что пользователь существует #'''
-
+    raise_exception = kwargs.pop('raise_exception')
+    print(kwargs)
     try:
         user = User.objects.get(**kwargs)
     except User.DoesNotExist:
-        raise exceptions.AuthenticationFailed(
-            {'user_error': code}, #settings.ERRORS['user_error']['1']
-            code=status.HTTP_401_UNAUTHORIZED
-        )
+        if raise_exception == False:
+            return code
+        else:
+            raise exceptions.AuthenticationFailed(
+                {'user_error': code}, #settings.ERRORS['user_error']['1']
+                code=status.HTTP_401_UNAUTHORIZED
+            )
     return user
 
 
@@ -354,9 +358,9 @@ def send_email_directors(instance):
             for director in directors:
                 token = create_token(director, is_password=True)
                 InfoCreatedProfile(email=[director.email], context={
-                    'protocol': settings.PROTOCOL,
-                    'site_name': settings.HOST,
-                    'port': settings.PORT,
+                    'protocol': 'http',#settings.PROTOCOL,
+                    'site_name': '127.0.0.1',#settings.HOST,
+                    'port': '8000',#settings.PORT,
                     'last_name': instance.last_name,
                     'first_name': instance.first_name,
                     'middle_name': instance.middle_name,
@@ -396,7 +400,7 @@ def open_access_user(instance):
                 'password': password,
             }
         ).send()
-
+        return True
     elif not (instance.is_active and instance.is_verify) and instance.is_email_getted:
         instance.is_active = True
         instance.is_verify = True
@@ -410,7 +414,8 @@ def open_access_user(instance):
                 'port': settings.PORT,
             }
         ).send()
-    
+        return True
+    return False
 
 
 def send_login_detail(email, password):

@@ -28,7 +28,7 @@
             </p>
 
             <p>{% trans "Открыть доступ можно через админ панель " %}
-                <a href="{{ protocol }}://{{ site_name }}:{{port}}/admin/" style="text-decoration: none;">{{ site_name }}</a>.
+                <a href="{{ protocol }}://{{ site_name }}:{{port}}/admin/" style="text-decoration: none;">{{ site_name }}/admin/</a>
                 {% trans "или нажав на кнопу ниже" %}
             </p>
 
@@ -66,6 +66,7 @@
             {% endblocktrans %}</p>
         </div>
     </div>
+
 </div>
 
 {% endblock html_body %}

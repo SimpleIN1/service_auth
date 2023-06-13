@@ -2,7 +2,9 @@
 from django.conf import settings
 from django.http import FileResponse, HttpResponsePermanentRedirect
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views import View
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.views.static import serve
 from rest_framework import status, exceptions
@@ -296,32 +298,45 @@ class AccessMediaAPIView(PermissionAPIViewOverride):
         return file
 
 
+class ResultOpeningAccessClient(View):
+    def get(self, request, *args, **kwargs):
+
+        tmp = request.GET.get('email')
+        email = tmp if tmp else ''
+
+        return render(request, 'AccountsApp/success_giving_access.html', {'context': {
+            'result': request.GET.get('result'),
+            'email': email,
+        }})
+
+
 class OpeningAccessClientAPIView(PermissionAPIViewOverride):
     permission_classes = (AllowAny, )
 
-    @permission_is_auth_tmp_token(is_password=True, type_request='GET')
+    @permission_is_auth_tmp_token(is_password=True, type_request='GET', raise_exception=False)
     #@error_wraps
     def get(self, request, *args, **kwargs):
 
         # print(request.GET)
-        if kwargs.get('type_user') != 1:
+        if kwargs.get('type_user') != 1 or kwargs.get('result_field') != '1':
             # return HttpResponsePermanentRedirect('https://fam.rcpod.space/')
-            return Response(
-                {'available_tmp_error': 17},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+            # return Response(
+            #     {'available_tmp_error': 17},
+            #     status=status.HTTP_401_UNAUTHORIZED
+            # )
+            return redirect(reverse('open-access') + f'?result=1')
         #
         serializer = OpeningAccessClientSerializer(data=request.GET)
-        serializer.is_valid(raise_exception=True)
+        if not serializer.is_valid():
+            return redirect(reverse('open-access') + f'?result=1')
         #
-        user = find_or_get_user_model(email=serializer.data.get('email_access'))
-        open_access_user(user)
+        user = find_or_get_user_model(email=serializer.data.get('email_access'), raise_exception=False)
+        if user == '4':
+            return redirect(reverse('open-access') + f'?result=2')
 
-        return HttpResponsePermanentRedirect('https://fam.rcpod.space/')
-        # return Response(
-        #     {'user_access': 2},
-        #     status=status.HTTP_200_OK
-        # )
+        result = open_access_user(user)
+
+        return redirect(reverse('open-access') + f'?result=0&email={user.email}')
 
 
 class TestAPIView(PermissionAPIViewOverride):

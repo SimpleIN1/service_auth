@@ -35,7 +35,7 @@ def exception_jwt(func):
     return wrapper
 
 
-def permission_is_auth_tmp_token(is_password=False, type_request='POST'):
+def permission_is_auth_tmp_token(is_password=False, type_request='POST', raise_exception=True):
 
     def decorator(func):
         from AccountsApp.services.user_view import find_or_get_user_model
@@ -51,7 +51,11 @@ def permission_is_auth_tmp_token(is_password=False, type_request='POST'):
             print(data)
             # serializer = TokenSerializer(data=args[1].data)
             serializer = TokenSerializer(data=data)
-            serializer.is_valid(raise_exception=True)
+            if not raise_exception:
+                serializer.is_valid()
+                kwargs['result_field'] = '1'
+            else:
+                serializer.is_valid(raise_exception=True)
 
             token = serializer.data.get('token')
 
@@ -59,14 +63,18 @@ def permission_is_auth_tmp_token(is_password=False, type_request='POST'):
                 email=serializer.data.get('email'),
                 uuid=serializer.data.get('uuid'),
                 # **serializer.data
+                raise_exception=raise_exception
             )
             # print(user)
             # print(token)
             if not check_token(user, token, is_password):
-                raise exceptions.AuthenticationFailed(
-                    {'available_tmp_error': '17'},#settings.ERRORS['available_tmp_error']['17']},
-                    code=status.HTTP_401_UNAUTHORIZED
-                )
+                if not raise_exception:
+                    kwargs['result_field'] = '1'
+                else:
+                    raise exceptions.AuthenticationFailed(
+                        {'available_tmp_error': '17'},#settings.ERRORS['available_tmp_error']['17']},
+                        code=status.HTTP_401_UNAUTHORIZED
+                    )
             kwargs['type_user'] = user.type_user
             # print(kwargs)
             # print(zip(kwargs))

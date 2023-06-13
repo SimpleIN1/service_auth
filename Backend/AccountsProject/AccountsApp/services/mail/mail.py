@@ -1,3 +1,5 @@
+import os.path
+import time
 import traceback
 from pathlib import Path
 
@@ -21,12 +23,26 @@ class Mail:
             logging.warning('blabla')
 
             # mail.content_subtype='html'
+            # while not os.path.exists('../../{}'.format(filename)):
+            # logging.warning('->-->--->'+str(os.path.exists('../../{}'.format(filename))))
+            #     time.sleep(1)
+            #     logging.warning(os.listdir('../../files'))
+
+            # logging.warning(os.listdir('../../files'))
+            # logging.warning(os.listdir(f'../../{os.path.dirname(filename)}'))
+            # logging.warning(os.listdir('..'))
+            # logging.warning(os.listdir('files'))
             logging.warning(filename)
 
             if filename:
                 logging.warning('->|12344|<-')
-                mail.attach_file(filename)
+                mail.attach_file(filename) # изменить уже не надо
+
+            # logging.warning(os.path.existfilename)))
+            # logging.warning(os.listdir('../../files'))
+
             mail.send()
+
             # send_mail(
             #     subject=subject,
             #     message=message,

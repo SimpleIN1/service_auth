@@ -1,0 +1,42 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Access to client</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style type="text/css">
+      h1 {
+        font-size: 500%;
+        font-weight: 900;
+      }
+      #error-page {
+        padding-top: 10%;
+        text-align: center
+      }
+    </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+        <div id="error-page" class="col-md-12">
+            {% if context.result == '0' %}
+                <h1>Выдача доступа пользователю</h1>
+                <h2>Доступ пользовaтелю {{context.email}} выдан успешно</h2>
+            {% elif context.result == '1' %}
+                <h1>Ошибка доступа</h1>
+                <h2>Невозможно выполнить операцию</h2>
+            {% elif context.result == '2' %}
+                <h1>Выдача доступа пользователю</h1>
+                <h2>Операция выдачи доступа пользователю {{context.email}} завершилась с ошибкой повторите или попробуйте через админ панель</h2>
+            {% else %}
+                <h1>404</h1>
+                <h2>Запрашиваемая страница не найдена</h2>
+            {% endif %}
+            <br>
+            <a class="btn btn-primary" href="/">На главную.</a>
+        </div>
+    </div>
+  </div>
+</body>
+</html>

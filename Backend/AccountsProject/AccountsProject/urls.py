@@ -5,7 +5,7 @@ from django.views.static import serve
 from django.views.generic.base import TemplateView
 
 
-from AccountsApp.views import AccessMediaAPIView
+from AccountsApp.views import AccessMediaAPIView, ResultOpeningAccessClient
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -19,4 +19,5 @@ urlpatterns = [
             template_name='robots.txt',
             content_type='text/plain')
         ),
+    path('open-access/', ResultOpeningAccessClient.as_view(), name='open-access'),
 ]

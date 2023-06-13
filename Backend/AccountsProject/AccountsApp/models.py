@@ -16,6 +16,7 @@ def upload_to(inst, fn):
         dirname = str(inst.email).split('@')[0]
         expansion = settings.CONTENT_TYPE[inst.file._file.content_type]
         filename = f'{inst.last_name}_{inst.first_name}_{inst.middle_name}.{expansion}'
+        # print('FFF')
         return f'files/{dirname}/{filename}'
     except Exception as e:
         print(traceback.format_exc())
@@ -56,6 +57,9 @@ class User(AbstractUser):
     organization_name = models.CharField(
         max_length=400,
         verbose_name='Наименование организации'
+    )
+    send_email_to_director = models.BooleanField(
+        default=False,
     )
     is_email_getted = models.BooleanField(
         default=False,

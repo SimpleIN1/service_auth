@@ -18,7 +18,7 @@ User = get_user_model()
 @receiver(post_save, sender=User)
 def user_post_save(created, **kwargs):
     instance = kwargs['instance']
-
+    print(kwargs)
     if not instance.is_added_admin_panel \
             and created \
             and not instance.is_verify: # False and
@@ -32,7 +32,9 @@ def user_post_save(created, **kwargs):
         # print(instance.file._file)
         # print('==')
         # print('***(--')
-        # print(os.listdir('media/files/gorgh31/'))
+        # print(os.listdir('files/'))
+        # print(os.listdir('files/'))
+        # print(os.listdir('files/'))
         # print('***(--')
         send_email_directors(instance)
         # send_email_to_directors.delay(directors, instance)
@@ -40,27 +42,8 @@ def user_post_save(created, **kwargs):
         # print(os.listdir('media/files/gorgh31/'))
         # print('***(')
 
-# @receiver(pre_save, sender=User)
-# def user_model_pre_save(sender, instance, *args, **kwargs):
-#     if instance.is_verify and instance.is_active and not instance.is_email_getted:
-#
-#         password = secrets.token_urlsafe(11)
-#         instance.set_password(password)
-#
-#         instance.is_verify = True
-#         instance.is_email_getted = True
-#         SuccessOpeningAccessClient(
-#             email=[instance.email],
-#             context={
-#                 'protocol': settings.PROTOCOL,
-#                 'site_name': settings.HOST,
-#                 'port': settings.PORT,
-#                 'email': instance.email,
-#                 'password': password,
-#             }
-#         ).send()
-
-
+    if instance.is_added_admin_panel and created and instance.send_email_to_director:
+        send_email_directors(instance)
 
 @receiver(pre_save, sender=User)
 def user_model_pre_save(sender, instance, *args, **kwargs):
@@ -84,6 +67,7 @@ def user_model_pre_save(sender, instance, *args, **kwargs):
         instance.set_password(password)
 
         # instance.is_verify = True
+        instance.is_open_app = True
         instance.is_email_getted = True
         instance.save()
         SuccessOpeningAccessClient(

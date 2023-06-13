@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth import password_validation
 from django.contrib.auth.forms import UserCreationForm, AdminPasswordChangeForm
 from django import forms
@@ -8,6 +10,7 @@ from AccountsApp.services.user_view import send_login_detail, generate_password,
     change_password_details
 
 from AccountsApp.services.mail.mail_send import SuccessOpeningAccessClient
+
 
 class UserPasswordNorRequiredCreationForm(UserCreationForm):
     select_action_password = forms.ChoiceField(
@@ -111,7 +114,11 @@ class UserPasswordNorRequiredCreationForm(UserCreationForm):
 
             if self.cleaned_data.get('type_user') == 2 \
                     and self.cleaned_data.get('send_email_to_director'):
-                send_email_directors(user)
+                # print(os.listdir('files'))
+                # print(os.listdir('../files/'))
+                # print(os.listdir('../files/'))
+                user.send_email_to_director = True
+                # send_email_directors(user)
 
             if self.cleaned_data.get('open_access'):
                 user.is_verify = True
@@ -123,6 +130,8 @@ class UserPasswordNorRequiredCreationForm(UserCreationForm):
 
         if commit:
             user.save()
+
+        # print(self)
         return user
 
 
