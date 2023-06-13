@@ -56,7 +56,8 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
+    'AccountsApp.middleware.DisableCSRFMiddleware.DisableCSRFMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -65,7 +66,7 @@ MIDDLEWARE = [
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'http')
 
-CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0:8080', 'http://10.4.47.52:8080', 'https://fam.rcpod.space']
+CSRF_TRUSTED_ORIGINS = ['http://0.0.0.0:8080', 'http://10.4.47.53:8080', 'https://fam.rcpod.space:443']
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
@@ -156,11 +157,12 @@ if not DEBUG:
             "drf_orjson_renderer.renderers.ORJSONRenderer",
         )
 
-#
-# AUTHENTICATION_BACKENDS = [
-#     'AccountsApp.services.authentication.CustomModelBackend',
-#     # 'django.contrib.auth.backends.RemoteUserBackend',
-# ]
+
+AUTHENTICATION_BACKENDS = [
+    'AccountsApp.services.authentication.CustomModelBackend',
+     # 'django.contrib.auth.backends.RemoteUserBackend',
+     #'django.contrib.auth.backends.ModelBackend',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -185,7 +187,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 
 STATIC_URL = '/static-admin/'
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static-admin')
 # STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
@@ -210,9 +212,9 @@ CORS_ALLOW_HEADERS = (
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
-# CORS_ORIGIN_WHITELIST = [
-#     'http://127.0.0.1:8081',
-# ]
+CORS_ORIGIN_WHITELIST = [
+    'https://fam.rcpod.space:443',
+]
 
 #Cashing
 CACHEOPS = {

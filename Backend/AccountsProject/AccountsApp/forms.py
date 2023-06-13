@@ -1,11 +1,13 @@
 from django.contrib.auth import password_validation
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AdminPasswordChangeForm
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
+from AccountsApp.services.user_view import send_login_detail, generate_password, send_email_directors, \
+    change_password_details
 
-from AccountsApp.services.user_view import send_login_detail, generate_password, send_email_directors
-
+from AccountsApp.services.mail.mail_send import SuccessOpeningAccessClient
 
 class UserPasswordNorRequiredCreationForm(UserCreationForm):
     select_action_password = forms.ChoiceField(
@@ -80,11 +82,32 @@ class UserPasswordNorRequiredCreationForm(UserCreationForm):
                 elif action_pass == 2:
                     password = generate_password()
                 user.set_password(password)
+                user.is_email_getted = True
+                
+                if self.cleaned_data.get('open_access'):
+                    user.is_verify = True
+                    user.is_active = True
+                    user.is_open_app = True
+             
+                    SuccessOpeningAccessClient(
+                        email=[user.email],
+                        context={
+                            'protocol': settings.PROTOCOL,
+                            'site_name': settings.HOST,
+                            'port': settings.PORT,
+                            'email': user.email,
+                            'password': password,
+                        }
+                    ).send()
+            
+                else:
+                    user.is_verify = False
+                    user.is_active = False
 
-                if self.cleaned_data.get('send_password'):
-                    send_login_detail(user.email, password)
-                elif self.cleaned_data.get('send_gen_password'):
-                    send_login_detail(user.email, password)
+                    if self.cleaned_data.get('send_password'):
+                        send_login_detail(user.email, password)
+                    elif self.cleaned_data.get('send_gen_password'):
+                        send_login_detail(user.email, password)
 
             if self.cleaned_data.get('type_user') == 2 \
                     and self.cleaned_data.get('send_email_to_director'):
@@ -93,6 +116,7 @@ class UserPasswordNorRequiredCreationForm(UserCreationForm):
             if self.cleaned_data.get('open_access'):
                 user.is_verify = True
                 user.is_active = True
+                user.is_open_app = True
             else:
                 user.is_verify = False
                 user.is_active = False
@@ -100,3 +124,24 @@ class UserPasswordNorRequiredCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class ChangePasswordForm(AdminPasswordChangeForm):
+    send_password = forms.BooleanField(
+        label=_('Отправить пароль на почту'),
+        required=False,
+        help_text=_("Отправляется пароль, заполенный в ручную, на указанный электронный адрес.")
+    )
+
+    def save(self, commit=True):
+        """Save the new password."""
+        password = self.cleaned_data["password1"]
+
+        self.user.set_password(password)
+        if commit:
+            self.user.save()
+#        print(self.cleaned_data.get('send_password'))
+        if self.cleaned_data.get('send_password'):
+            change_password_details(self.user.email, password)
+
+        return self.user

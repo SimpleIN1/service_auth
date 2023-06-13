@@ -59,6 +59,10 @@ class User(AbstractUser):
     )
     is_email_getted = models.BooleanField(
         default=False,
+        verbose_name='Отправлено письмо с паролем'
+    )
+    is_open_app = models.BooleanField(
+        default=False,
     )
 
     is_added_admin_panel = models.BooleanField(

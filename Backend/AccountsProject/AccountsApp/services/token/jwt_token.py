@@ -12,7 +12,7 @@ class Jwt:
     def create_access_token(user_id):
         payload = {
             'token_type': 'access',
-            'exp': datetime.utcnow() + timedelta(days=0, minutes=5),
+            'exp': datetime.utcnow() + timedelta(days=0, minutes=10),
             'iat': datetime.utcnow(),
             'jti': f'{uuid4()}',
             'user_id': user_id,

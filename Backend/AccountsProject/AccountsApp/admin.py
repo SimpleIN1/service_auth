@@ -3,8 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from AccountsApp.forms import UserPasswordNorRequiredCreationForm
-
+from AccountsApp.forms import UserPasswordNorRequiredCreationForm, ChangePasswordForm
 # from AccountsApp.models import FileModel
 
 User = get_user_model()
@@ -100,9 +99,13 @@ class UserModelAdmin(UserAdmin):
         ),
         (_("Important dates"), {"fields": ("last_login", "date_joined")}),
     )
-    exclude = ('is_email_getted', )
+    exclude = ('is_open_app', )
+    readonly_fields = ('is_email_getted', )
 
     add_form = UserPasswordNorRequiredCreationForm
+    change_password_form = ChangePasswordForm
+    change_user_password_template = 'admin-override/auth/user/change_password.html'
+    add_form_template = 'admin-override/auth/user/add_form.html'
 
     class Media:
         js = ('AccountsApp/js/base-admin.js', )

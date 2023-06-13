@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from AccountsApp.services.token.jwt_token import Jwt
 from .mail.mail_send import EmailResetPassword, EmailVerify, RecoveryAccount, RegisteredProfile, InfoCreatedProfile, \
-    SuccessOpeningAccessClient, LoginDetails
+    SuccessOpeningAccessClient, LoginDetails, ChangePassword
 from .token.mail_token import create_token
 from ..models import upload_to
 
@@ -374,13 +374,16 @@ def generate_password(length: int = 11) -> str:
 
 
 def open_access_user(instance):
-    password = generate_password()
-    instance.set_password(password)
+    #password = generate_password()
+    #instance.set_password(password)
 
-    if not (instance.is_active and instance.is_verify):
+    if not (instance.is_active and instance.is_verify) and not instance.is_email_getted:
+        password = generate_password()
+        instance.set_password(password)
         instance.is_active = True
         instance.is_verify = True
         instance.is_email_getted = True
+        instance.is_open_app = True
         instance.save()
 
         SuccessOpeningAccessClient(
@@ -394,9 +397,37 @@ def open_access_user(instance):
             }
         ).send()
 
+    elif not (instance.is_active and instance.is_verify) and instance.is_email_getted:
+        instance.is_active = True
+        instance.is_verify = True
+        instance.is_open_app = True
+        instance.save()
+        OpeningAccessToApp(
+            email=[instance.email],
+            context={
+                'protocol': settings.PROTOCOL,
+                'site_name': settings.HOST,
+                'port': settings.PORT,
+            }
+        ).send()
+    
+
 
 def send_login_detail(email, password):
     LoginDetails(
+        email=[email],
+        context={
+            'protocol': settings.PROTOCOL,
+            'site_name': settings.HOST,
+            'port': settings.PORT,
+            'email': email,
+            'password': password,
+        }
+    ).send()
+
+
+def change_password_details(email, password):
+    ChangePassword(
         email=[email],
         context={
             'protocol': settings.PROTOCOL,

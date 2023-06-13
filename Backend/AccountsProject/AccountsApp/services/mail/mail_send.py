@@ -50,6 +50,11 @@ class RegisteredProfile(EmailSend):
     subject = 'Регистрация на %s' % settings.HOST
 
 
+class OpeningAccessToApp(EmailSend):
+    template = 'AccountsApp/opening_access_to_app.html'
+    subject = 'Получен доступ к %s' % settings.HOST
+
+
 class SuccessOpeningAccessClient(EmailSend):
     template = 'AccountsApp/success_opening_access_client.html'
     subject = 'Получен доступ к %s' % settings.HOST
@@ -58,3 +63,8 @@ class SuccessOpeningAccessClient(EmailSend):
 class LoginDetails(EmailSend):
     template = 'AccountsApp/login_details.html'
     subject = 'Данные для входа на %s' % settings.HOST
+
+
+class ChangePassword(EmailSend):
+    template = 'AccountsApp/change_password.html'
+    subject = 'Смена пароля на %s' % settings.HOST
