@@ -19,5 +19,5 @@ urlpatterns = [
             template_name='robots.txt',
             content_type='text/plain')
         ),
-    path('open-access/', ResultOpeningAccessClient.as_view(), name='open-access'),
+    path('api/auth/open-access/', ResultOpeningAccessClient.as_view(), name='open-access'),
 ]

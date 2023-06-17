@@ -94,10 +94,16 @@ class UserBase:
     pass
 
 
-def find_or_get_user_model(code='4', **kwargs) -> User:
+def find_or_get_user_model(code='4',raise_exception=True,**kwargs) -> User:
     '''# Проверка пользователя на то, что пользователь существует #'''
-    raise_exception = kwargs.pop('raise_exception')
+    #raise_exception = True
+    #if kwargs.get('raise_exception'):
+    #    raise_exception = kwargs.pop('raise_exception')
+                                      
+    print('%-'*10)
     print(kwargs)
+    print('%-'*10)
+    
     try:
         user = User.objects.get(**kwargs)
     except User.DoesNotExist:
@@ -350,17 +356,17 @@ def send_email_directors(instance):
     if directors:
         # Отправка письма директору(рам)
         try:
-            if not instance.is_added_admin_panel:
-                filename = instance.file.name
-            else:
-                filename = upload_to(instance, '')
+            #if not instance.is_added_admin_panel:
+            filename = instance.file.name
+            #else:
+            #    filename = upload_to(instance, '')
 
             for director in directors:
                 token = create_token(director, is_password=True)
                 InfoCreatedProfile(email=[director.email], context={
-                    'protocol': 'http',#settings.PROTOCOL,
-                    'site_name': '127.0.0.1',#settings.HOST,
-                    'port': '8000',#settings.PORT,
+                    'protocol': settings.PROTOCOL,
+                    'site_name': settings.HOST,
+                    'port': settings.PORT,
                     'last_name': instance.last_name,
                     'first_name': instance.first_name,
                     'middle_name': instance.middle_name,

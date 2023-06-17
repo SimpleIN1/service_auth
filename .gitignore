@@ -16,3 +16,5 @@ entrypoint.sh
 notebook
 
 Backend/AccountsProject/files/*
+
+Backend/AccountsProject/static-admin/AccountsApp/user_guide_admin_panel.pdf
